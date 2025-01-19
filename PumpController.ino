@@ -99,9 +99,9 @@ void setup() {
 
 
 const int interval = 30; //sampling ingerval in seconds
-const double vOn = 14.1;
+const double vOn = 13.3;
 const double vOff = 11.0;
-const int maxSecondsOnPerDay = 3600;
+const int maxSecondsOnPerDay = 4800;
 const int secondsInDay = 3600 * 24;
 int secondsElapsed = 0;
 int secondsOn = 0;
