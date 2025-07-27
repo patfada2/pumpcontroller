@@ -112,6 +112,7 @@ const char* ssid = "RosieWiFi";
 const char* password = "Thr33.0n3";
 const int analogInPin = A0;  // ESP8266 Analog Pin ADC0 = A0
 String dataFile0 = "/a0_7.txt";
+String dataFile1 = "/stateHistory.txt";
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
 
@@ -156,14 +157,21 @@ void relayOn() {
   digitalWrite(relay1Pin, LOW);
   digitalWrite(LED_BUILTIN, HIGH);
   relayIsOn = true;
+  saveRelayState();
 }
 
 void relayOff() {
   digitalWrite(relay1Pin, HIGH);
   digitalWrite(LED_BUILTIN, LOW);
-  relayIsOn = false;
+  relayIsOn = false; 
+  saveRelayState();
 }
 
+void saveRelayState() {
+   //save to file
+  std::string rdata = "[" + time_tToString(dateTime) + "," + std::to_string(relayIsOn) + "],";
+  appendFile(LittleFS, dataFile1.c_str(), rdata.c_str());
+}
 
 void lcdWrite(String msg) {
   Serial.println(msg);
@@ -188,12 +196,18 @@ void lcdNewLine() {
   }
 }
 
+String readData() {
+  return readDataFile(dataFile0);
+}
+
+String readStatusData() {
+  return readDataFile(dataFile1);
+}
 
 //return data file as json array
-String readData() {
+String readDataFile(String path) {
   String s = "";
   int numLines = 0;
-  String path = dataFile0;
   String line = "";
   s = "[";
   Serial.printf("Reading file: %s\r\n", path);
@@ -294,6 +308,14 @@ void setup() {
     //readFile(LittleFS, dataFile0.c_str());
   }
   
+  if (!LittleFS.exists(dataFile1)) {
+    Serial.println("File" + dataFile1 + "not found - creating it");
+    writeFile(LittleFS, dataFile1.c_str(), "");
+  } else {
+    Serial.println("Found file" + dataFile1);
+    //readFile(LittleFS, dataFile0.c_str());
+  }
+
   listAllFilesInDir("/");
 
   Serial.println("hello from PumpController");
@@ -305,6 +327,9 @@ void setup() {
   });
   server.on("/GET_DATA", HTTP_GET, [](AsyncWebServerRequest* request) {
     request->send(200, "text/plain", readData().c_str());
+  });
+  server.on("/GET_STATUS", HTTP_GET, [](AsyncWebServerRequest* request) {
+    request->send(200, "text/plain", readStatusData().c_str());
   });
   server.on("/CLEAR_DATA", HTTP_GET, [](AsyncWebServerRequest* request) {
     Serial.println("clearing data...");

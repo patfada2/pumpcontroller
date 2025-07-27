@@ -83,9 +83,9 @@ copies or substantial portions of the Software. -->
 		<button onclick="myFunction()" class="dropbtn">...</button>
 		<div id="myDropdown" class="dropdown-content">
 			<a href="javascript:readVoltage();">Read Voltage</a>
-			<a href="javascript:getData();">Load History</a>
-			<a href="javascript:clearData();">Clear History</a>
-
+			<a href="javascript:getData();">Load Voltage History</a>
+			<a href="javascript:clearData();">Clear Voltage History</a>
+			<a href="javascript:getState();">Load Status History</a>
 		</div>
 	</div>
 
@@ -223,11 +223,29 @@ copies or substantial portions of the Software. -->
 				const obj = JSON.parse(json);
 				chartT.series[0].setData(obj);
 
-				document.getElementById("history").innerHTML = "loaded";
+				document.getElementById("history").innerHTML = "loaded voltage history";
 
 			}
 		};
 		xhttp.open("GET", "/GET_DATA", true);
+		xhttp.send();
+	};
+	
+	function getState() {
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function () {
+			if (this.readyState == 4 && this.status == 200) {
+
+				const json = xhttp.responseText;
+				
+				const obj = JSON.parse(json);
+				chartT.series[1].setData(obj);
+
+				document.getElementById("history").innerHTML = "loaded state history";
+
+			}
+		};
+		xhttp.open("GET", "/GET_STATUS", true);
 		xhttp.send();
 	};
 
