@@ -10,36 +10,6 @@
 #define FILE_WRITE "w"
 #define FILE_APPEND "a"
 
-
-void listDir(fs::FS& fs, const char* dirname) {
-  Serial.printf("Listing directory: %s\r\n", dirname);
-
-  File root = fs.open(dirname, FILE_READ);
-  if (!root) {
-    Serial.println("- failed to open directory");
-    return;
-  }
-  if (!root.isDirectory()) {
-    Serial.println(" - not a directory");
-    return;
-  }
-
-  File file = root.openNextFile();
-  while (file) {
-    if (file.isDirectory()) {
-      Serial.print("  DIR : ");
-      Serial.println(file.name());
-
-      Serial.print("  FILE: ");
-      Serial.print(file.name());
-      Serial.print("\tSIZE: ");
-      Serial.println(file.size());
-
-      file = root.openNextFile();
-    }
-  }
-}
-
 void writeFile(fs::FS& fs, const char* path, const char* message) {
   Serial.printf("Writing file: %s\r\n", path);
 
@@ -75,6 +45,24 @@ void appendFile(fs::FS& fs, const char* path, const char* message) {
   file.close();
 }
 
+void listAllFilesInDir(String dir_path) {
+  // Open the specified directory
+  Dir dir = LittleFS.openDir(dir_path);
+
+  // Iterate through the directory contents
+  while (dir.next()) {
+    if (dir.isFile()) {
+      // If it's a file, print its name
+      Serial.print("File: ");
+      Serial.println(dir_path + dir.fileName());
+    } else if (dir.isDirectory()) {
+      // If it's a directory, print its name and recursively list its contents
+      Serial.print("Dir: ");
+      Serial.println(dir_path + dir.fileName() + "/");
+      //listAllFilesInDir(dir_path + dir.fileName() + "/"); // Recursive call for subdirectories
+    }
+  }
+}
 
 void readFile(fs::FS& fs, const char* path) {
   Serial.printf("Reading file: %s\r\n", path);
