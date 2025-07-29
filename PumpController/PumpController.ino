@@ -343,7 +343,7 @@ void setup() {
   });
   server.on("/TOGGLE_RELAY", HTTP_GET, [](AsyncWebServerRequest* request) {
     toggleRelay();
-    request->send(200, "text/plain", "cleared");
+    request->send(200, "text/plain", String(relayIsOn).c_str());
   });
 
   server.on("/GET_VOLTAGE", [](AsyncWebServerRequest* request) {

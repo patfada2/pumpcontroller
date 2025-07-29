@@ -119,6 +119,7 @@ copies or substantial portions of the Software. -->
 			panKey: 'shift'
 		},
 		rangeSelector: {
+		
 			allButtonsEnabled: true,
 			buttons: [
 				{
@@ -156,16 +157,13 @@ copies or substantial portions of the Software. -->
 					}
 				}, {
 					type: 'all',
-					text: 'Month',
-					dataGrouping: {
-						forced: true,
-						units: [['month', [1]]]
-					}
+					text: 'All'
+					
 				}],
 			buttonTheme: {
 				width: 60
 			},
-			selected: 2
+			selected: 4
 		},
 
 		title: {
@@ -178,6 +176,7 @@ copies or substantial portions of the Software. -->
 		series: [{
 			showInLegend: true,
 			data: [],
+
 			color: Highcharts.getOptions().colors[1],
 		},
 		{
@@ -231,7 +230,7 @@ copies or substantial portions of the Software. -->
 		};
 		xhttp.open("GET", "/GET_VOLTAGE", true);
 		xhttp.send();
-	}, 30000);
+	}, 300000);
 
 	function getData() {
 		var xhttp = new XMLHttpRequest();
@@ -305,7 +304,7 @@ copies or substantial portions of the Software. -->
 		xhttp.onreadystatechange = function () {
 			if (this.readyState == 4 && this.status == 200) {
 				
-				document.getElementById("relay_state").innerHTML = "toggled";
+				document.getElementById("relay_state").innerHTML =  xhttp.responseText;
 			}
 		};
 		xhttp.open("GET", "/TOGGLE_RELAY", true);
