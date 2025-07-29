@@ -167,6 +167,11 @@ void relayOff() {
   saveRelayState();
 }
 
+void toggleRelay() {
+  if (relayIsOn ) {
+    relayOff();
+  } else relayOn();
+}
 void saveRelayState() {
    //save to file
   std::string rdata = "[" + time_tToString(dateTime) + "," + std::to_string(relayIsOn) + "],";
@@ -334,6 +339,10 @@ void setup() {
   server.on("/CLEAR_DATA", HTTP_GET, [](AsyncWebServerRequest* request) {
     Serial.println("clearing data...");
     clearData();
+    request->send(200, "text/plain", "cleared");
+  });
+  server.on("/TOGGLE_RELAY", HTTP_GET, [](AsyncWebServerRequest* request) {
+    toggleRelay();
     request->send(200, "text/plain", "cleared");
   });
 

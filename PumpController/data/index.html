@@ -86,6 +86,7 @@ copies or substantial portions of the Software. -->
 			<a href="javascript:getData();">Load Voltage History</a>
 			<a href="javascript:clearData();">Clear Voltage History</a>
 			<a href="javascript:getState();">Load Status History</a>
+			<a href="javascript:toggleRelay();">Toggle Relay</a>
 		</div>
 	</div>
 
@@ -93,6 +94,7 @@ copies or substantial portions of the Software. -->
 	<p id="history"></p>
 
 	<p id="voltage_reading"></p>
+	<p id="relay_state"></p>
 
 	<div id="chart-voltage" class="container"></div>
 
@@ -174,24 +176,41 @@ copies or substantial portions of the Software. -->
 				'directions.'
 		},
 		series: [{
-			showInLegend: false,
-			data: []
+			showInLegend: true,
+			data: [],
+			color: Highcharts.getOptions().colors[1],
+		},
+		{
+			showInLegend: true,
+			data: [],
+			yaxis: 1,
+			color: Highcharts.getOptions().colors[2],
 		}],
 		plotOptions: {
 			line: {
 				animation: false,
 				dataLabels: {enabled: true}
-			},
-			series: {color: '#059e8a'}
+			}
 		},
 		xAxis: {
 			type: 'datetime',
 			dateTimeLabelFormats: {second: '%H:%M:%S'}
 		},
-		yAxis: {
-			title: {text: 'Pump Controller'}
-			//title: { text: 'Temperature (Fahrenheit)' }
-		},
+		yAxis: [{
+		opposite: false,
+        lineWidth: 1,
+		
+        title: {
+            text: 'Volts'
+        }
+    }, {
+        lineWidth: 1,
+		color: Highcharts.getOptions().colors[2],
+        opposite: true,
+        title: {
+            text: 'Relay Off/On'
+        }
+    }],
 		credits: {enabled: false}
 	});
 
@@ -278,6 +297,18 @@ copies or substantial portions of the Software. -->
 			}
 		};
 		xhttp.open("GET", "/GET_VOLTAGE", true);
+		xhttp.send();
+	};
+	
+	function toggleRelay() {
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function () {
+			if (this.readyState == 4 && this.status == 200) {
+				
+				document.getElementById("relay_state").innerHTML = "toggled";
+			}
+		};
+		xhttp.open("GET", "/TOGGLE_RELAY", true);
 		xhttp.send();
 	};
 
