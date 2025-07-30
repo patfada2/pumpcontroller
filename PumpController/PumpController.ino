@@ -330,13 +330,13 @@ void setup() {
     Serial.println("sending html..");
     request->send(LittleFS, "/index.html");
   });
-  server.on("/GET_DATA", HTTP_GET, [](AsyncWebServerRequest* request) {
+  server.on("/GET_VOLT_HISTORY", HTTP_GET, [](AsyncWebServerRequest* request) {
     request->send(200, "text/plain", readData().c_str());
   });
-  server.on("/GET_STATUS", HTTP_GET, [](AsyncWebServerRequest* request) {
+  server.on("/GET_STATE_HISTORY", HTTP_GET, [](AsyncWebServerRequest* request) {
     request->send(200, "text/plain", readStatusData().c_str());
   });
-  server.on("/CLEAR_DATA", HTTP_GET, [](AsyncWebServerRequest* request) {
+  server.on("/CLEAR_VOLT_HISTORY", HTTP_GET, [](AsyncWebServerRequest* request) {
     Serial.println("clearing data...");
     clearData();
     request->send(200, "text/plain", "cleared");

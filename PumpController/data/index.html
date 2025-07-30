@@ -78,14 +78,14 @@ copies or substantial portions of the Software. -->
 </head>
 
 <body>
-	<h2>Voltage Meter</h2>
+	<h2>Pump Controller</h2>
 	<div class="dropdown">
-		<button onclick="myFunction()" class="dropbtn">...</button>
+		<button onclick="dropdown()" class="dropbtn">...</button>
 		<div id="myDropdown" class="dropdown-content">
 			<a href="javascript:readVoltage();">Read Voltage</a>
-			<a href="javascript:getData();">Load Voltage History</a>
-			<a href="javascript:clearData();">Clear Voltage History</a>
-			<a href="javascript:getState();">Load Status History</a>
+			<a href="javascript:getVoltageHistory();">Load Voltage History</a>
+			<a href="javascript:clearVoltageHistory();">Clear Voltage History</a>
+			<a href="javascript:getStateHistory();">Load Relay State History</a>
 			<a href="javascript:toggleRelay();">Toggle Relay</a>
 		</div>
 	</div>
@@ -93,8 +93,8 @@ copies or substantial portions of the Software. -->
 
 	<p id="history"></p>
 
-	<p id="voltage_reading"></p>
-	<p id="relay_state"></p>
+	<b id="voltage_reading"></b><br>
+	<b id="relay_state"></b>
 
 	<div id="chart-voltage" class="container"></div>
 
@@ -167,7 +167,7 @@ copies or substantial portions of the Software. -->
 		},
 
 		title: {
-			text: 'Pump Controller'
+			text: 'Battery Voltage and Relay State'
 		},
 		subtitle: {
 			text: 'Click and drag to zoom in. Hold down shift key to pan in both ' +
@@ -232,7 +232,7 @@ copies or substantial portions of the Software. -->
 		xhttp.send();
 	}, 300000);
 
-	function getData() {
+	function getVoltageHistory() {
 		var xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function () {
 			if (this.readyState == 4 && this.status == 200) {
@@ -245,11 +245,11 @@ copies or substantial portions of the Software. -->
 
 			}
 		};
-		xhttp.open("GET", "/GET_DATA", true);
+		xhttp.open("GET", "/GET_VOLT_HISTORY", true);
 		xhttp.send();
 	};
 	
-	function getState() {
+	function getStateHistory() {
 		var xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function () {
 			if (this.readyState == 4 && this.status == 200) {
@@ -263,11 +263,11 @@ copies or substantial portions of the Software. -->
 
 			}
 		};
-		xhttp.open("GET", "/GET_STATUS", true);
+		xhttp.open("GET", "/GET_STATE_HISTORY", true);
 		xhttp.send();
 	};
 
-	function clearData() {
+	function clearVoltageHistory() {
 		var xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function () {
 			if (this.readyState == 4 && this.status == 200) {
@@ -278,7 +278,7 @@ copies or substantial portions of the Software. -->
 
 			}
 		};
-		xhttp.open("GET", "/CLEAR_DATA", true);
+		xhttp.open("GET", "/CLEAR_VOLT_HISTORY", true);
 		xhttp.send();
 	};
 
@@ -291,7 +291,7 @@ copies or substantial portions of the Software. -->
 				const json = xhttp.responseText;
 				const obj = JSON.parse(json);
 
-				document.getElementById("voltage_reading").innerHTML = obj.y;
+				document.getElementById("voltage_reading").innerHTML = "volts: "+obj.y;
 
 			}
 		};
@@ -304,7 +304,7 @@ copies or substantial portions of the Software. -->
 		xhttp.onreadystatechange = function () {
 			if (this.readyState == 4 && this.status == 200) {
 				
-				document.getElementById("relay_state").innerHTML =  xhttp.responseText;
+				document.getElementById("relay_state").innerHTML =  "relay :"+xhttp.responseText;
 			}
 		};
 		xhttp.open("GET", "/TOGGLE_RELAY", true);
@@ -314,7 +314,7 @@ copies or substantial portions of the Software. -->
 
 	/* When the user clicks on the button,
 toggle between hiding and showing the dropdown content */
-	function myFunction() {
+	function dropdown() {
 		document.getElementById("myDropdown").classList.toggle("show");
 	}
 
