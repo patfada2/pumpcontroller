@@ -385,6 +385,10 @@ void setup() {
     request->send(200, "text/plain", booleanToOnOff(relayIsOn).c_str());
   });
 
+   server.on("/GET_RELAY_STATE", HTTP_GET, [](AsyncWebServerRequest* request) {
+    request->send(200, "text/plain", booleanToOnOff(relayIsOn).c_str());
+  });
+
   server.on("/GET_VOLTAGE", [](AsyncWebServerRequest* request) {
     //std::string data = "{\"x\":" + time_tToString(dateTime) + ",\"y\":" + std::to_string(vin) + "}";
     //request->send_P(200, "text/plain", data.c_str());

@@ -83,6 +83,7 @@ copies or substantial portions of the Software. -->
 		<button onclick="dropdown()" class="dropbtn">...</button>
 		<div id="myDropdown" class="dropdown-content">
 			<a href="javascript:readVoltage();">Read Voltage</a>
+			<a href="javascript:readRelayState();">Read Relay State</a>
 			<a href="javascript:getVoltageHistory();">Load Voltage History</a>
 			<a href="javascript:clearVoltageHistory();">Clear Voltage History</a>
 			<a href="javascript:getStateHistory();">Load Relay State History</a>
@@ -103,6 +104,9 @@ copies or substantial portions of the Software. -->
 
 </body>
 <script>
+
+	setInterval(getData, 30000);
+	
 	var chartT = new Highcharts.stockChart('chart-voltage', {
 		chart: {
 			time: {
@@ -212,25 +216,12 @@ copies or substantial portions of the Software. -->
     }],
 		credits: {enabled: false}
 	});
-
-	setInterval(function () {
-		var xhttp = new XMLHttpRequest();
-		xhttp.onreadystatechange = function () {
-			if (this.readyState == 4 && this.status == 200) {
-
-				var json = this.responseText;
-				const obj = JSON.parse(json);
-
-				if (chartT.series[0].data.length > 40) {
-					chartT.series[0].addPoint([obj.x, obj.y], true, true, true);
-				} else {
-					chartT.series[0].addPoint([obj.x, obj.y], true, false, true);
-				}
-			}
-		};
-		xhttp.open("GET", "/GET_VOLTAGE", true);
-		xhttp.send();
-	}, 300000);
+	
+	function getData() {
+		readVoltage();
+		readRelayState();
+	}
+	
 
 	function getVoltageHistory() {
 		var xhttp = new XMLHttpRequest();
@@ -296,6 +287,17 @@ copies or substantial portions of the Software. -->
 			}
 		};
 		xhttp.open("GET", "/GET_VOLTAGE", true);
+		xhttp.send();
+	};
+	
+	function readRelayState() {
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function () {
+			if (this.readyState == 4 && this.status == 200) {				
+				document.getElementById("voltage_reading").innerHTML =  "relay :"+xhttp.responseText;
+			}
+		};
+		xhttp.open("GET", "/GET_RELAY_STATE", true);
 		xhttp.send();
 	};
 	
