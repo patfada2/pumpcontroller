@@ -43,6 +43,29 @@
 #include "./fileutils.h"
 #include <TimeLib.h>
 
+
+double vin = 0;
+const int interval = 5;  //sampling interval in seconds
+const double vOn = 13.3;
+const double vOff = 11.0;
+const int maxSecondsOnPerDay = 4800;
+const int secondsInDay = 3600 * 24;
+int secondsElapsed = 0;
+int secondsOn = 0;
+
+time_t _now=0;
+std::string data;
+
+//I think lcd needs d2
+const int relay1Pin = D4;  //!! check board wiring
+
+const double vcal = 44.0;
+boolean relayIsOn;
+
+const int relay2Pin = 0;  //d??
+const int AC_DETECT = 0;  //need to assign a digital inpu to this
+
+
 time_t getTime() {
 
 
@@ -116,15 +139,7 @@ String dataFile1 = "/stateHistory.txt";
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
 
-double vin = 0;
 
-//I thinl lcd needs d2
-const int relay1Pin = 4;  //d2
-const double vcal = 44.0;
-boolean relayIsOn;
-
-const int relay2Pin = 0;  //d??
-const int AC_DETECT = 0;  //need to assign a digital inpu to this
 
 /*
 add to loop:
@@ -168,12 +183,15 @@ void relayOff() {
 }
 
 void toggleRelay() {
+  saveRelayState();
   if (relayIsOn ) {
     relayOff();
   } else relayOn();
+  lcdDisplayStatus();
 }
 void saveRelayState() {
    //save to file
+   Serial.println("saving relay state");
   std::string rdata = "[" + time_tToString(dateTime) + "," + std::to_string(relayIsOn) + "],";
   appendFile(LittleFS, dataFile1.c_str(), rdata.c_str());
 }
@@ -205,6 +223,21 @@ void lcdNewLine() {
     lcd.setCursor(0, 0);
     lcdIsLineZero = true;
   }
+}
+
+
+void lcdDisplayStatus() {
+  Serial.println("updating lcd");
+  lcd.clear();
+  lcd.blink();
+  lcd.setCursor(0, 0);
+  lcdWrite(String(secondsOn) + "/" + String(maxSecondsOnPerDay));
+  lcd.setCursor(0, 1);
+  if (relayIsOn) {
+      lcdWrite("ON v=" + String(vin, 2));
+    } else lcdWrite("OFF v=" + String(vin, 2) + " t="+String(secondsElapsed));
+    lcdIsLineZero = false;
+
 }
 
 String readData() {
@@ -367,16 +400,7 @@ void setup() {
   server.begin();
 }
 
-const int interval = 2;  //sampling interval in seconds
-const double vOn = 13.3;
-const double vOff = 11.0;
-const int maxSecondsOnPerDay = 4800;
-const int secondsInDay = 3600 * 24;
-int secondsElapsed = 0;
-int secondsOn = 0;
 
-time_t _now=0;
-std::string data;
 
 void loop() {
   Serial.println("loop");
@@ -403,21 +427,18 @@ void loop() {
   appendFile(LittleFS, dataFile0.c_str(), data.c_str());
 
   Serial.println(WiFi.localIP());
-  lcdWrite("checking..");
-
+  
   Serial.println("seconds elapsed = " + String(secondsElapsed) + ", secondsOn=" + String(secondsOn) + ", maxSecondsOnPerDay =" + String(maxSecondsOnPerDay) + ",  vin = " + String(vin, 2));
 
   secondsElapsed += interval;
   if (secondsElapsed > secondsInDay) {
     secondsElapsed = 0;
   }
+
   if (relayIsOn) {
     secondsOn += interval;
-    lcdWrite("ON v=" + String(vin, 2));
-  } else lcdWrite("OFF v=" + String(vin, 2));
-
-  lcdWrite(String(secondsOn) + "/" + String(maxSecondsOnPerDay));
-
+  }
+  
   if ((secondsElapsed < maxSecondsOnPerDay) and (relayIsOn == false) and (vin > vOn)) {
     Serial.println("turning relay on");
     relayOn();
@@ -425,8 +446,10 @@ void loop() {
 
   if (relayIsOn and ((vin < vOff) or (secondsOn > maxSecondsOnPerDay))) {
     Serial.println("turning relay off");
+    
     relayOff();
   }
    Serial.println("housekeeping");
   
+  lcdDisplayStatus();
 }
