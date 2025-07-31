@@ -178,6 +178,12 @@ void saveRelayState() {
   appendFile(LittleFS, dataFile1.c_str(), rdata.c_str());
 }
 
+String booleanToOnOff(boolean flag){
+  if (flag) {
+    return "on";
+  } else return "off";
+}
+
 void lcdWrite(String msg) {
   Serial.println(msg);
   //pad right to ensure full line is ovewritten
@@ -343,7 +349,7 @@ void setup() {
   });
   server.on("/TOGGLE_RELAY", HTTP_GET, [](AsyncWebServerRequest* request) {
     toggleRelay();
-    request->send(200, "text/plain", String(relayIsOn).c_str());
+    request->send(200, "text/plain", booleanToOnOff(relayIsOn).c_str());
   });
 
   server.on("/GET_VOLTAGE", [](AsyncWebServerRequest* request) {
@@ -369,7 +375,7 @@ const int secondsInDay = 3600 * 24;
 int secondsElapsed = 0;
 int secondsOn = 0;
 
-time_t _now;
+time_t _now=0;
 std::string data;
 
 void loop() {
@@ -380,8 +386,8 @@ void loop() {
   delay(interval * 1000);
 
   // get the time
-  getTime();
-  _now = 0;
+   _now = getTime();
+ 
   if (_now > 0) {
     dateTime = _now;
   } else {
