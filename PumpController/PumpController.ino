@@ -1,18 +1,5 @@
 #include <LittleFS.h>
 
-/*********
-  Rui Santos & Sara Santos - Random Nerd Tutorials
-  Complete project details at https://RandomNerdTutorials.com/esp32-esp8266-plot-chart-web-server/
-  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files.
-  The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-  This code builds a web server which connetcs tot he lcoal wifi and a loop whcih reads the sensors.
-  The loop reads the time -  this function calls a rest API - it doesnt seem to work from within the webserver callback code
-  It also reads the  sensor data 
-  The latest time and sensor data values read by the loop  are stored in globals which are read by the web application defined in index html
-  which calls  /GET_MOISTURE on the web server every 30 seconds.
-
-*********/
 #ifdef ESP32
 #include <WiFi.h>
 #include <ESPAsyncWebServer.h>
@@ -37,7 +24,6 @@
 #include <sstream>
 #include <string>
 
-
 #include <ESP8266HTTPClient.h>
 #include "./timeutils.h"
 #include "./fileutils.h"
@@ -45,24 +31,27 @@
 #include <TimeLib.h>
 
 
-double vin = 0;
+//config
 const int interval = 5;  //sampling interval in seconds
 const double vOn = 13.3;
 const double vOff = 11.0;
 const int maxSecondsOnPerDay = 4800;
 const int secondsInDay = 3600 * 24;
+const double vcal = 44.0;
+
+//state variables
+double vin = 0;
 int secondsElapsed = 0;
 int secondsOn = 0;
-
 time_t _now = 0;
+boolean relayIsOn;
+//29 June 2024
+time_t dateTime = 1719685735000;  //29 June 2024
+
 std::string data;
 
 //I think lcd needs d2
 const int relay1Pin = D4;  //!! check board wiring
-
-const double vcal = 44.0;
-boolean relayIsOn;
-
 const int relay2Pin = 0;  //d??
 const int AC_DETECT = 0;  //need to assign a digital inpu to this
 // Replace with your network credentials
@@ -74,56 +63,12 @@ String dataFile1 = "/stateHistory.txt";
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
  
-time_t getTime() {
-
-
-  WiFiClient client;
-  HTTPClient http;
-
-  http.begin(client, "http://worldclockapi.com/api/json/utc/now");
-
-  Serial.print("[HTTP] GETting data...");
-  int httpCode = http.GET();  // Send the HTTP GET request
-
-  if (httpCode > 0) {  // Check for a successful HTTP response code
-    Serial.printf("[HTTP] GET... code: %d\n", httpCode);
-
-    if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) {
-      String payload = http.getString();  // Get the response payload
-      Serial.println(payload);            // Print the payload to Serial Monitor
-    }
-  } else {
-    Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
-  }
-
-  DynamicJsonDocument doc(1024);
-
-  DeserializationError error = deserializeJson(doc, http.getString());
-
-  // Test if parsing succeeds.
-  if (error) {
-    Serial.print(F("deserializeJson() failed: "));
-    Serial.println(error.f_str());
-    return 0;
-  }
-  JsonObject obj = doc.as<JsonObject>();
-  String currentDateTime = obj["currentDateTime"];
-  Serial.println("currentDateTime=" + currentDateTime);
-  http.end();  // Close the connection
-
-  return timeStrToEpoch(currentDateTime.c_str());
-}
-
-
 
 /*
 add to loop:
 if (AC is off) and (V_dc >12)
  then reset relay2
 */
-
-//29 June 2024
-time_t dateTime = 1719685735000;  //29 June 2024
 
 double A0toV(int a0) {
   return a0 / vcal;

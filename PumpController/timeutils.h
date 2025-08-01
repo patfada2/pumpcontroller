@@ -49,3 +49,45 @@ time_t timeStrToEpoch(std::string timeString) {
     return 1;
   } else return timestamp*1000;
 }
+
+
+
+time_t getTime() {
+
+
+  WiFiClient client;
+  HTTPClient http;
+
+  http.begin(client, "http://worldclockapi.com/api/json/utc/now");
+
+  Serial.print("[HTTP] GETting data...");
+  int httpCode = http.GET();  // Send the HTTP GET request
+
+  if (httpCode > 0) {  // Check for a successful HTTP response code
+    Serial.printf("[HTTP] GET... code: %d\n", httpCode);
+
+    if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) {
+      String payload = http.getString();  // Get the response payload
+      Serial.println(payload);            // Print the payload to Serial Monitor
+    }
+  } else {
+    Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
+  }
+
+  DynamicJsonDocument doc(1024);
+
+  DeserializationError error = deserializeJson(doc, http.getString());
+
+  // Test if parsing succeeds.
+  if (error) {
+    Serial.print(F("deserializeJson() failed: "));
+    Serial.println(error.f_str());
+    return 0;
+  }
+  JsonObject obj = doc.as<JsonObject>();
+  String currentDateTime = obj["currentDateTime"];
+  Serial.println("currentDateTime=" + currentDateTime);
+  http.end();  // Close the connection
+
+  return timeStrToEpoch(currentDateTime.c_str());
+}
