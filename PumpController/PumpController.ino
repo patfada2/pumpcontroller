@@ -64,7 +64,21 @@ boolean relayIsOn;
 
 const int relay2Pin = 0;  //d??
 const int AC_DETECT = 0;  //need to assign a digital inpu to this
+// Replace with your network credentials
+const char* ssid = "RosieWiFi";
+const char* password = "Thr33.0n3";
+const int analogInPin = A0;  // ESP8266 Analog Pin ADC0 = A0
+String dataFile0 = "/voltageHistory.txt";
+String dataFile1 = "/stateHistory.txt";
+// Create AsyncWebServer object on port 80
+AsyncWebServer server(80);
+ // set the LCD number of columns and rows
+  int lcdColumns = 16;
+  int lcdRows = 2;
 
+  // set LCD address, number of columns and rows
+  // if you don't know your display address, run an I2C scanner sketch
+  LiquidCrystal_I2C lcd(0x27, lcdColumns, lcdRows);
 
 time_t getTime() {
 
@@ -105,23 +119,6 @@ time_t getTime() {
 
   return timeStrToEpoch(currentDateTime.c_str());
 }
-
-// set the LCD number of columns and rows
-int lcdColumns = 16;
-int lcdRows = 2;
-
-// set LCD address, number of columns and rows
-// if you don't know your display address, run an I2C scanner sketch
-LiquidCrystal_I2C lcd(0x27, lcdColumns, lcdRows);
-
-// Replace with your network credentials
-const char* ssid = "RosieWiFi";
-const char* password = "Thr33.0n3";
-const int analogInPin = A0;  // ESP8266 Analog Pin ADC0 = A0
-String dataFile0 = "/voltageHistory.txt";
-String dataFile1 = "/stateHistory.txt";
-// Create AsyncWebServer object on port 80
-AsyncWebServer server(80);
 
 
 
@@ -231,39 +228,6 @@ String readStatusData() {
   return readDataFile(dataFile1);
 }
 
-//return data file as json array
-String readDataFile(String path) {
-  String s = "";
-  int numLines = 0;
-  String line = "";
-  s = "[";
-  Serial.printf("Reading file: %s\r\n", path);
-
-  File file = LittleFS.open(path, FILE_READ);
-  if (!file || file.isDirectory()) {
-    Serial.println("- failed to open file for reading");
-    return "";
-  }
-
-  Serial.println("- read from file:");
-  while (file.available()) {
-    line = (file.readString());
-    Serial.println(line);
-    s += line;
-    numLines += 1;
-  }
-  file.close();
-  //replace trailig comma with ']'
-  s[s.length() - 3] = ' ';
-  s[s.length() - 2] = ' ';
-  s[s.length() - 1] = ']';
-
-  Serial.println("read " + String(numLines) + " lines");
-  Serial.println(s);
-  if (numLines > 0) {
-    return s;
-  } else return "[]";
-}
 
 String clearVoltageHistory() {
   //delete and recreate the file
@@ -272,32 +236,15 @@ String clearVoltageHistory() {
   return "voltage history cleared";
 }
 
+
 String clearRelayStateHistory() {
   //delete and recreate the file
   LittleFS.remove(dataFile0.c_str());
   writeFile(LittleFS, dataFile1.c_str(), "");
   return "state history cleared";
 }
-//a0: 0V = 0
-//VCC =1024 =3.2
 
-void setup() {
-
-  // Serial port for debugging purposes
-  Serial.begin(115200);
-  delay(1000);
-
-  pinMode(LED_BUILTIN, OUTPUT);
-  //d1 = gpo5
-  pinMode(relay1Pin, OUTPUT);
-  //relayOff();
-
-  lcd.init();
-
-  // turn on LCD backlight
-  lcd.backlight();
-  lcdIsLineZero = true;
-  lcdWrite("PumpController");
+void setupLittleFS() {
 
   // Initialize LittleFS
   if (!LittleFS.begin()) {
@@ -310,6 +257,36 @@ void setup() {
   } else {
     Serial.println("Little FS Mounted Successfully");
   }
+  if (!LittleFS.exists(dataFile0)) {
+    Serial.println("File" + dataFile0 + "not found - creating it");
+    writeFile(LittleFS, dataFile0.c_str(), "");
+  } else {
+    Serial.println("Found file" + dataFile0);
+  }
+
+  if (!LittleFS.exists(dataFile1)) {
+    Serial.println("File" + dataFile1 + "not found - creating it");
+    writeFile(LittleFS, dataFile1.c_str(), "");
+  } else {
+    Serial.println("Found file" + dataFile1);
+  }
+
+  listAllFilesInDir("/");
+}
+
+void setupLCD() {
+
+ 
+
+  lcd.init();
+  // turn on LCD backlight
+  lcd.backlight();
+  lcdIsLineZero = true;
+  lcdWrite("PumpController");
+}
+
+
+void setupWiFi() {
 
   // Connect to Wi-Fi
   // Set your Static IP address
@@ -334,32 +311,11 @@ void setup() {
 
   // Print ESP32 Local IP Address
   Serial.println(WiFi.localIP());
+}
 
-  _now = getTime();
-  while (_now == 0) {
-    delay(1000);
-    Serial.println("retrying getTime...");
-    _now = getTime();
-  }
 
-  if (!LittleFS.exists(dataFile0)) {
-    Serial.println("File" + dataFile0 + "not found - creating it");
-    writeFile(LittleFS, dataFile0.c_str(), "");
-  } else {
-    Serial.println("Found file" + dataFile0);
-  }
 
-  if (!LittleFS.exists(dataFile1)) {
-    Serial.println("File" + dataFile1 + "not found - creating it");
-    writeFile(LittleFS, dataFile1.c_str(), "");
-  } else {
-    Serial.println("Found file" + dataFile1);
-  }
-
-  listAllFilesInDir("/");
-
-  Serial.println("hello from PumpController");
-
+void setupWebServer() {
   // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest* request) {
     Serial.println("sending html..");
@@ -404,6 +360,31 @@ void setup() {
   server.begin();
 }
 
+void setup() {
+  // Serial port for debugging purposes
+  Serial.begin(115200);
+  delay(1000);
+
+  pinMode(LED_BUILTIN, OUTPUT);
+  //d1 = gpo5
+  pinMode(relay1Pin, OUTPUT);
+  //relayOff();
+
+  setupLCD();
+  setupWiFi();
+  setupLittleFS();
+  setupWebServer();
+
+
+  _now = getTime();
+  while (_now == 0) {
+    delay(1000);
+    Serial.println("retrying getTime...");
+    _now = getTime();
+  }
+
+  Serial.println("hello from PumpController");
+}
 
 
 void loop() {

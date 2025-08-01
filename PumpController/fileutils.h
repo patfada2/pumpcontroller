@@ -27,6 +27,41 @@ void writeFile(fs::FS& fs, const char* path, const char* message) {
 }
 
 
+//return data file as json array
+String readDataFile(String path) {
+  String s = "";
+  int numLines = 0;
+  String line = "";
+  s = "[";
+  Serial.printf("Reading file: %s\r\n", path);
+
+  File file = LittleFS.open(path, FILE_READ);
+  if (!file || file.isDirectory()) {
+    Serial.println("- failed to open file for reading");
+    return "";
+  }
+
+  Serial.println("- read from file:");
+  while (file.available()) {
+    line = (file.readString());
+    Serial.println(line);
+    s += line;
+    numLines += 1;
+  }
+  file.close();
+  //replace trailig comma with ']'
+  s[s.length() - 3] = ' ';
+  s[s.length() - 2] = ' ';
+  s[s.length() - 1] = ']';
+
+  Serial.println("read " + String(numLines) + " lines");
+  Serial.println(s);
+  if (numLines > 0) {
+    return s;
+  } else return "[]";
+}
+
+
 void appendFile(fs::FS& fs, const char* path, const char* message) {
   Serial.printf("Appending to file: %s\r\n", path);
 
