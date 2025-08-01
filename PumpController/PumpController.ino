@@ -104,7 +104,6 @@ time_t getTime() {
   http.end();  // Close the connection
 
   return timeStrToEpoch(currentDateTime.c_str());
-
 }
 
 // set the LCD number of columns and rows
@@ -336,6 +335,12 @@ void setup() {
   // Print ESP32 Local IP Address
   Serial.println(WiFi.localIP());
 
+  _now = getTime();
+  while (_now == 0) {
+    delay(1000);
+    Serial.println("retrying getTime...");
+    _now = getTime();
+  }
 
   if (!LittleFS.exists(dataFile0)) {
     Serial.println("File" + dataFile0 + "not found - creating it");
@@ -409,6 +414,7 @@ void loop() {
   delay(interval * 1000);
 
   // get the time
+
   _now = getTime();
 
   if (_now > 0) {

@@ -47,5 +47,5 @@ time_t timeStrToEpoch(std::string timeString) {
   if (timestamp == -1) {
     std::cerr << "Failed to convert tm to time_t!" << std::endl;
     return 1;
-  } else return timestamp;
+  } else return timestamp*1000;
 }
