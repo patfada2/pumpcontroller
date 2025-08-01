@@ -38,6 +38,7 @@ const double vOff = 11.0;
 const int maxSecondsOnPerDay = 4800;
 const int secondsInDay = 3600 * 24;
 const double vcal = 44.0;
+const int numSamples=5; //number of time A0 is sampled for average
 
 //state variables
 double vin = 0;
@@ -52,8 +53,8 @@ std::string data;
 
 //I think lcd needs d2
 const int relay1Pin = D4;  //!! check board wiring
-const int relay2Pin = 0;  //d??
-const int AC_DETECT = 0;  //need to assign a digital inpu to this
+const int relay2Pin = 0;   //d??
+const int AC_DETECT = 0;   //need to assign a digital inpu to this
 // Replace with your network credentials
 const char* ssid = "RosieWiFi";
 const char* password = "Thr33.0n3";
@@ -62,7 +63,7 @@ String dataFile0 = "/voltageHistory.txt";
 String dataFile1 = "/stateHistory.txt";
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
- 
+
 
 /*
 add to loop:
@@ -70,9 +71,12 @@ if (AC is off) and (V_dc >12)
  then reset relay2
 */
 
-double A0toV(int a0) {
-  return a0 / vcal;
+double A0toV(double _a0) {
+  Serial.printf("a0=%f, v= %f", _a0, _a0/vcal);
+  Serial.println();
+  return _a0/vcal;
 }
+
 
 int readA0() {
 
@@ -86,6 +90,17 @@ int readA0() {
     Serial.println(a);
     return a;
   }
+}
+
+double readA0Avg(int count) {
+  double sample = 0;
+  for (int i = 0; i < count; i++) {
+    sample=sample+readA0();
+    delay(10);
+  }
+  double avg = sample/count;
+  Serial.printf("avg=%f",avg);
+  return avg;
 }
 
 void relayOn() {
@@ -134,7 +149,6 @@ void lcdDisplayStatus() {
     lcdWrite("ON v=" + String(vin, 2));
   } else lcdWrite("OFF v=" + String(vin, 2) + " t=" + String(secondsElapsed));
   lcdIsLineZero = false;
-
 }
 
 String readVoltageData() {
@@ -311,7 +325,7 @@ void loop() {
   }
   Serial.println("date time = " + String(dateTime));
   // read the data
-  vin = A0toV(readA0());
+  vin = A0toV(readA0Avg(numSamples));
 
   //save to file
   data = "[" + time_tToString(dateTime) + "," + std::to_string(vin) + "],";

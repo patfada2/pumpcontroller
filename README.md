@@ -14,3 +14,7 @@ ui should allow change to config liek thresholds and sampling rate
 
 load history
 clear history
+
+config
+- load from file
+- edit from webserver

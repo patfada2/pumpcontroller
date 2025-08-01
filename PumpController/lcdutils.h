@@ -31,7 +31,7 @@ void lcdWrite(String msg) {
 }
 
 void lcdWriteln(String msg) {
-  lcdWrite(msg)
+  lcdWrite(msg);
   lcdNewLine();
 }
 

@@ -10,14 +10,12 @@
 
 HTTPClient http;  // Declare an object of class HTTPClient
 
-
 std::string time_tToString(time_t t) {
   std::stringstream ss;
   ss << t;
   std::string ts = ss.str();
   return ss.str();
 }
-
 
 time_t timeStrToEpoch(std::string timeString) {
   int year;
