@@ -37,10 +37,11 @@
 #include <sstream>
 #include <string>
 
-#include <LiquidCrystal_I2C.h>
+
 #include <ESP8266HTTPClient.h>
 #include "./timeutils.h"
 #include "./fileutils.h"
+#include "./lcdutils.h"
 #include <TimeLib.h>
 
 
@@ -72,14 +73,7 @@ String dataFile0 = "/voltageHistory.txt";
 String dataFile1 = "/stateHistory.txt";
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
- // set the LCD number of columns and rows
-  int lcdColumns = 16;
-  int lcdRows = 2;
-
-  // set LCD address, number of columns and rows
-  // if you don't know your display address, run an I2C scanner sketch
-  LiquidCrystal_I2C lcd(0x27, lcdColumns, lcdRows);
-
+ 
 time_t getTime() {
 
 
@@ -183,29 +177,6 @@ String booleanToOnOff(boolean flag) {
   } else return "off";
 }
 
-void lcdWrite(String msg) {
-  Serial.println(msg);
-  //pad right to ensure full line is ovewritten
-  while (msg.length() < 16) {
-    msg += " ";
-  }
-  lcd.print(msg);
-  lcdNewLine();
-}
-
-
-boolean lcdIsLineZero;
-void lcdNewLine() {
-  if (lcdIsLineZero) {
-    lcd.setCursor(0, 1);
-    lcdIsLineZero = false;
-
-  } else {
-    lcd.setCursor(0, 0);
-    lcdIsLineZero = true;
-  }
-}
-
 
 void lcdDisplayStatus() {
   Serial.println("updating lcd");
@@ -273,18 +244,6 @@ void setupLittleFS() {
 
   listAllFilesInDir("/");
 }
-
-void setupLCD() {
-
- 
-
-  lcd.init();
-  // turn on LCD backlight
-  lcd.backlight();
-  lcdIsLineZero = true;
-  lcdWrite("PumpController");
-}
-
 
 void setupWiFi() {
 
