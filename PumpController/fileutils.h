@@ -48,7 +48,7 @@ void appendFile(fs::FS& fs, const char* path, const char* message) {
 void listAllFilesInDir(String dir_path) {
   // Open the specified directory
   Dir dir = LittleFS.openDir(dir_path);
-
+  Serial.print("listing dir " +  dir_path);
   // Iterate through the directory contents
   while (dir.next()) {
     if (dir.isFile()) {

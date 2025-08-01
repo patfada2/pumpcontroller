@@ -84,10 +84,9 @@ copies or substantial portions of the Software. -->
 		<div id="myDropdown" class="dropdown-content">
 			<a href="javascript:readVoltage();">Read Voltage</a>
 			<a href="javascript:readRelayState();">Read Relay State</a>
-			<a href="javascript:getVoltageHistory();">Load Voltage History</a>
-			<a href="javascript:clearVoltageHistory();">Clear Voltage History</a>
-			<a href="javascript:getStateHistory();">Load Relay State History</a>
 			<a href="javascript:toggleRelay();">Toggle Relay</a>
+			<a href="javascript:getHistory();">Load History</a>
+			<a href="javascript:clearHistory();">Clear History</a>		
 		</div>
 	</div>
 
@@ -262,7 +261,7 @@ copies or substantial portions of the Software. -->
 		var xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function () {
 			if (this.readyState == 4 && this.status == 200) {
-				document.getElementById("history").innerHTML = "cleared";
+				document.getElementById("history").innerHTML = "cleared voltage history";
 				if (chartT.series.length) {
 					chartT.series[0].setData([]);
 				}
@@ -272,6 +271,22 @@ copies or substantial portions of the Software. -->
 		xhttp.open("GET", "/CLEAR_VOLT_HISTORY", true);
 		xhttp.send();
 	};
+
+	function clearRelayStateHistory() {
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function () {
+			if (this.readyState == 4 && this.status == 200) {
+				document.getElementById("history").innerHTML = "cleared relay state history";
+				if (chartT.series.length) {
+					chartT.series[0].setData([]);
+				}
+
+			}
+		};
+		xhttp.open("GET", "/CLEAR_RELAY_STATE_HISTORY", true);
+		xhttp.send();
+	};
+
 
 
 	function readVoltage() {
@@ -289,6 +304,16 @@ copies or substantial portions of the Software. -->
 		xhttp.open("GET", "/GET_VOLTAGE", true);
 		xhttp.send();
 	};
+	
+	function getHistory() {
+		getStateHistory();
+		getVoltageHistory();
+	}
+	
+	function clearHistory() {
+		clearVoltageHistory();
+		clearRelayStateHistory();
+	}
 	
 	function readRelayState() {
 		var xhttp = new XMLHttpRequest();

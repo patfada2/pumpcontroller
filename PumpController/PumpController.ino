@@ -53,7 +53,7 @@ const int secondsInDay = 3600 * 24;
 int secondsElapsed = 0;
 int secondsOn = 0;
 
-time_t _now=0;
+time_t _now = 0;
 std::string data;
 
 //I think lcd needs d2
@@ -88,10 +88,10 @@ time_t getTime() {
     Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
   }
 
-DynamicJsonDocument doc(1024);
+  DynamicJsonDocument doc(1024);
 
   DeserializationError error = deserializeJson(doc, http.getString());
-  
+
   // Test if parsing succeeds.
   if (error) {
     Serial.print(F("deserializeJson() failed: "));
@@ -99,27 +99,12 @@ DynamicJsonDocument doc(1024);
     return 0;
   }
   JsonObject obj = doc.as<JsonObject>();
- String currentDateTime = obj["currentDateTime"];
-  Serial.println("currentDateTime="+currentDateTime);
+  String currentDateTime = obj["currentDateTime"];
+  Serial.println("currentDateTime=" + currentDateTime);
   http.end();  // Close the connection
 
-  int year, month, day, hour, minute, second;
+  return timeStrToEpoch(currentDateTime.c_str());
 
-  sscanf(currentDateTime.c_str(), "%d-%d-%d %d:%d:%d", &year, &month, &day, &hour, &minute, &second);
-  
-  tmElements_t tm;
-  int Year, Month, Day, Hour, Minute, Second;
-  tm.Year = CalendarYrToTm(Year);
-  tm.Month = Month;
-  tm.Day = Day;
-  tm.Hour = Hour;
-  tm.Minute = Minute;
-  tm.Second = Second;
-  //time_t date = mktime(tm)*1000;
-  //time_t makeTime(const tmElements_t &tm);  // convert time elements into time_t
-  time_t date = makeTime(tm)*1000;
-
-  return date;
 }
 
 // set the LCD number of columns and rows
@@ -134,7 +119,7 @@ LiquidCrystal_I2C lcd(0x27, lcdColumns, lcdRows);
 const char* ssid = "RosieWiFi";
 const char* password = "Thr33.0n3";
 const int analogInPin = A0;  // ESP8266 Analog Pin ADC0 = A0
-String dataFile0 = "/a0_7.txt";
+String dataFile0 = "/voltageHistory.txt";
 String dataFile1 = "/stateHistory.txt";
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
@@ -178,25 +163,25 @@ void relayOn() {
 void relayOff() {
   digitalWrite(relay1Pin, HIGH);
   digitalWrite(LED_BUILTIN, LOW);
-  relayIsOn = false; 
+  relayIsOn = false;
   saveRelayState();
 }
 
 void toggleRelay() {
   saveRelayState();
-  if (relayIsOn ) {
+  if (relayIsOn) {
     relayOff();
   } else relayOn();
   lcdDisplayStatus();
 }
 void saveRelayState() {
-   //save to file
-   Serial.println("saving relay state");
+  //save to file
+  Serial.println("saving relay state");
   std::string rdata = "[" + time_tToString(dateTime) + "," + std::to_string(relayIsOn) + "],";
   appendFile(LittleFS, dataFile1.c_str(), rdata.c_str());
 }
 
-String booleanToOnOff(boolean flag){
+String booleanToOnOff(boolean flag) {
   if (flag) {
     return "on";
   } else return "off";
@@ -234,13 +219,12 @@ void lcdDisplayStatus() {
   lcdWrite(String(secondsOn) + "/" + String(maxSecondsOnPerDay));
   lcd.setCursor(0, 1);
   if (relayIsOn) {
-      lcdWrite("ON v=" + String(vin, 2));
-    } else lcdWrite("OFF v=" + String(vin, 2) + " t="+String(secondsElapsed));
-    lcdIsLineZero = false;
-
+    lcdWrite("ON v=" + String(vin, 2));
+  } else lcdWrite("OFF v=" + String(vin, 2) + " t=" + String(secondsElapsed));
+  lcdIsLineZero = false;
 }
 
-String readData() {
+String readVoltageData() {
   return readDataFile(dataFile0);
 }
 
@@ -270,31 +254,40 @@ String readDataFile(String path) {
     numLines += 1;
   }
   file.close();
-  //replace traileng comma with ']'
+  //replace trailig comma with ']'
   s[s.length() - 3] = ' ';
   s[s.length() - 2] = ' ';
   s[s.length() - 1] = ']';
 
   Serial.println("read " + String(numLines) + " lines");
   Serial.println(s);
-  return s;
+  if (numLines > 0) {
+    return s;
+  } else return "[]";
 }
 
-String clearData() {
+String clearVoltageHistory() {
   //delete and recreate the file
   LittleFS.remove(dataFile0.c_str());
   writeFile(LittleFS, dataFile0.c_str(), "");
-  return "data cleared";
+  return "voltage history cleared";
+}
+
+String clearRelayStateHistory() {
+  //delete and recreate the file
+  LittleFS.remove(dataFile0.c_str());
+  writeFile(LittleFS, dataFile1.c_str(), "");
+  return "state history cleared";
 }
 //a0: 0V = 0
 //VCC =1024 =3.2
 
 void setup() {
 
-   // Serial port for debugging purposes
+  // Serial port for debugging purposes
   Serial.begin(115200);
   delay(1000);
-  
+
   pinMode(LED_BUILTIN, OUTPUT);
   //d1 = gpo5
   pinMode(relay1Pin, OUTPUT);
@@ -306,7 +299,7 @@ void setup() {
   lcd.backlight();
   lcdIsLineZero = true;
   lcdWrite("PumpController");
- 
+
   // Initialize LittleFS
   if (!LittleFS.begin()) {
     Serial.println("LittleFS Mount Failed, trying to format..");
@@ -341,23 +334,21 @@ void setup() {
   }
 
   // Print ESP32 Local IP Address
-  Serial.println( WiFi.localIP());
+  Serial.println(WiFi.localIP());
 
 
-   if (!LittleFS.exists(dataFile0)) {
+  if (!LittleFS.exists(dataFile0)) {
     Serial.println("File" + dataFile0 + "not found - creating it");
     writeFile(LittleFS, dataFile0.c_str(), "");
   } else {
     Serial.println("Found file" + dataFile0);
-    //readFile(LittleFS, dataFile0.c_str());
   }
-  
+
   if (!LittleFS.exists(dataFile1)) {
     Serial.println("File" + dataFile1 + "not found - creating it");
     writeFile(LittleFS, dataFile1.c_str(), "");
   } else {
     Serial.println("Found file" + dataFile1);
-    //readFile(LittleFS, dataFile0.c_str());
   }
 
   listAllFilesInDir("/");
@@ -370,22 +361,26 @@ void setup() {
     request->send(LittleFS, "/index.html");
   });
   server.on("/GET_VOLT_HISTORY", HTTP_GET, [](AsyncWebServerRequest* request) {
-    request->send(200, "text/plain", readData().c_str());
+    request->send(200, "text/plain", readVoltageData().c_str());
   });
   server.on("/GET_STATE_HISTORY", HTTP_GET, [](AsyncWebServerRequest* request) {
     request->send(200, "text/plain", readStatusData().c_str());
   });
   server.on("/CLEAR_VOLT_HISTORY", HTTP_GET, [](AsyncWebServerRequest* request) {
-    Serial.println("clearing data...");
-    clearData();
-    request->send(200, "text/plain", "cleared");
+    Serial.println("clearing voltage data...");
+    request->send(200, "text/plain", clearVoltageHistory());
+  });
+  server.on("/CLEAR_RELAY_STATE_HISTORY", HTTP_GET, [](AsyncWebServerRequest* request) {
+    Serial.println("clearing relay statedata...");
+    clearRelayStateHistory();
+    request->send(200, "text/plain", clearRelayStateHistory());
   });
   server.on("/TOGGLE_RELAY", HTTP_GET, [](AsyncWebServerRequest* request) {
     toggleRelay();
     request->send(200, "text/plain", booleanToOnOff(relayIsOn).c_str());
   });
 
-   server.on("/GET_RELAY_STATE", HTTP_GET, [](AsyncWebServerRequest* request) {
+  server.on("/GET_RELAY_STATE", HTTP_GET, [](AsyncWebServerRequest* request) {
     request->send(200, "text/plain", booleanToOnOff(relayIsOn).c_str());
   });
 
@@ -414,8 +409,8 @@ void loop() {
   delay(interval * 1000);
 
   // get the time
-   _now = getTime();
- 
+  _now = getTime();
+
   if (_now > 0) {
     dateTime = _now;
   } else {
@@ -431,7 +426,7 @@ void loop() {
   appendFile(LittleFS, dataFile0.c_str(), data.c_str());
 
   Serial.println(WiFi.localIP());
-  
+
   Serial.println("seconds elapsed = " + String(secondsElapsed) + ", secondsOn=" + String(secondsOn) + ", maxSecondsOnPerDay =" + String(maxSecondsOnPerDay) + ",  vin = " + String(vin, 2));
 
   secondsElapsed += interval;
@@ -442,7 +437,7 @@ void loop() {
   if (relayIsOn) {
     secondsOn += interval;
   }
-  
+
   if ((secondsElapsed < maxSecondsOnPerDay) and (relayIsOn == false) and (vin > vOn)) {
     Serial.println("turning relay on");
     relayOn();
@@ -450,10 +445,10 @@ void loop() {
 
   if (relayIsOn and ((vin < vOff) or (secondsOn > maxSecondsOnPerDay))) {
     Serial.println("turning relay off");
-    
+
     relayOff();
   }
-   Serial.println("housekeeping");
-  
+  Serial.println("housekeeping");
+
   lcdDisplayStatus();
 }
