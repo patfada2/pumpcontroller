@@ -27,6 +27,12 @@ void lcdWrite(String msg) {
   }
   lcd.print(msg);
   lcdNewLine();
+  
+}
+
+void lcdWriteln(String msg) {
+  lcdWrite(msg)
+  lcdNewLine();
 }
 
 void setupLCD() {
@@ -34,6 +40,7 @@ void setupLCD() {
   lcd.init();
   // turn on LCD backlight
   lcd.backlight();
+  lcd.noCursor();
   lcdIsLineZero = true;
   lcdWrite("PumpController");
 }
