@@ -25,6 +25,7 @@
 #include <string>
 #include <TimeLib.h>
 #include <ESP8266HTTPClient.h>
+#include <LiquidCrystal_I2C.h>
 #include "./timeutils.h"
 #include "./fileutils.h"
 #include "./lcdutils.h"
@@ -118,7 +119,7 @@ void toggleRelay() {
   if (relayIsOn) {
     relayOff();
   } else relayOn();
-  lcdDisplayStatus();
+  displayStatus();
 }
 void saveRelayState() {
   //save to file
@@ -134,18 +135,6 @@ String booleanToOnOff(boolean flag) {
 }
 
 
-void lcdDisplayStatus() {
-  Serial.println("updating lcd");
-  lcd.clear();
-  //lcd.blink();
-  lcd.setCursor(0, 0);
-  lcdWrite(String(secondsOn) + "/" + String(c.maxSecondsOnPerDay));
-  lcd.setCursor(0, 1);
-  if (relayIsOn) {
-    lcdWrite("ON v=" + String(vin, 2));
-  } else lcdWrite("OFF v=" + String(vin, 2) + " t=" + String(secondsElapsed));
-  lcdIsLineZero = false;
-}
 
 String readVoltageData() {
   return readDataFile(dataFile0);
@@ -250,6 +239,23 @@ void setupWebServer() {
   server.begin();
 }
 
+void displayStatus() {
+
+
+String msg1 = String(secondsOn) + "/" + String(c.maxSecondsOnPerDay);
+String msg2;
+
+ if (relayIsOn) {
+    msg2 = "ON v=" + String(vin, 2);
+  } else msg2 = "OFF v=" + String(vin, 2);
+  
+  msg2 = msg2 + " t=" + String(secondsElapsed);
+
+  lcdDisplayStatus(msg1,msg2);
+}
+
+
+
 void setup() {
   // Serial port for debugging purposes
   Serial.begin(115200);
@@ -328,5 +334,5 @@ void loop() {
     relayOff();
   }
   
-  lcdDisplayStatus();
+  displayStatus();
 }
