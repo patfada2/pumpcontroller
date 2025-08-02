@@ -3,6 +3,9 @@
 #include "Arduino.h" 
 //#include "./fileutils.h"
  #include <ArduinoJson.h>
+
+const String configFilename = "/config.json";
+
 class Config {
 // class code goes here
 public:
@@ -12,7 +15,7 @@ public:
   int maxSecondsOnPerDay = 4800;
 	double vcal = 44.0;  //volatage calibration
 	int numSamples=5; //number of time A0 is sampled for average
-
+	
 	Config();
 	void save();
 	String toJson();
@@ -20,4 +23,5 @@ public:
 private:
 	
 };
+
 #endif

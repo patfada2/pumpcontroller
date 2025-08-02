@@ -29,7 +29,7 @@
 #include "./fileutils.h"
 #include "./lcdutils.h"
 #include "./config.h"
-
+#include "Config.h"
 
 const int secondsInDay = 3600 * 24;
 
