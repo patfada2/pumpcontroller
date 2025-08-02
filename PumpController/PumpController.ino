@@ -23,22 +23,18 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-
+#include <TimeLib.h>
 #include <ESP8266HTTPClient.h>
 #include "./timeutils.h"
 #include "./fileutils.h"
 #include "./lcdutils.h"
-#include <TimeLib.h>
+#include "./config.h"
 
+
+const int secondsInDay = 3600 * 24;
 
 //config
-const int interval = 5;  //sampling interval in seconds
-const double vOn = 13.3;
-const double vOff = 11.0;
-const int maxSecondsOnPerDay = 4800;
-const int secondsInDay = 3600 * 24;
-const double vcal = 44.0;
-const int numSamples=5; //number of time A0 is sampled for average
+Config c;
 
 //state variables
 double vin = 0;
@@ -72,9 +68,9 @@ if (AC is off) and (V_dc >12)
 */
 
 double A0toV(double _a0) {
-  Serial.printf("a0=%f, v= %f", _a0, _a0/vcal);
+  Serial.printf("a0=%f, v= %f", _a0, _a0/c.vcal);
   Serial.println();
-  return _a0/vcal;
+  return _a0/c.vcal;
 }
 
 
@@ -143,7 +139,7 @@ void lcdDisplayStatus() {
   lcd.clear();
   //lcd.blink();
   lcd.setCursor(0, 0);
-  lcdWrite(String(secondsOn) + "/" + String(maxSecondsOnPerDay));
+  lcdWrite(String(secondsOn) + "/" + String(c.maxSecondsOnPerDay));
   lcd.setCursor(0, 1);
   if (relayIsOn) {
     lcdWrite("ON v=" + String(vin, 2));
@@ -275,6 +271,10 @@ void setupWebServer() {
     Serial.println("get voltage returned " + data);
   });
 
+  server.on("/GET_CONFIG", HTTP_GET, [](AsyncWebServerRequest* request) {
+    request->send(200, "text/plain", c.toJson());
+  });
+
   // Start server
   server.begin();
 }
@@ -303,6 +303,8 @@ void setup() {
   }
 
   Serial.println("hello from PumpController");
+
+  c = Config();
 }
 
 
@@ -311,7 +313,7 @@ void loop() {
 
   digitalWrite(LED_BUILTIN, HIGH);
 
-  delay(interval * 1000);
+  delay(c.interval * 1000);
 
   // get the time
 
@@ -321,11 +323,11 @@ void loop() {
     dateTime = _now;
   } else {
     Serial.println("estimating date time");
-    dateTime += interval;
+    dateTime += c.interval;
   }
   Serial.println("date time = " + String(dateTime));
   // read the data
-  vin = A0toV(readA0Avg(numSamples));
+  vin = A0toV(readA0Avg(c.numSamples));
 
   //save to file
   data = "[" + time_tToString(dateTime) + "," + std::to_string(vin) + "],";
@@ -333,28 +335,27 @@ void loop() {
 
   Serial.println(WiFi.localIP());
 
-  Serial.println("seconds elapsed = " + String(secondsElapsed) + ", secondsOn=" + String(secondsOn) + ", maxSecondsOnPerDay =" + String(maxSecondsOnPerDay) + ",  vin = " + String(vin, 2));
+  Serial.println("seconds elapsed = " + String(secondsElapsed) + ", secondsOn=" + String(secondsOn) + ", maxSecondsOnPerDay =" + String(c.maxSecondsOnPerDay) + ",  vin = " + String(vin, 2));
 
-  secondsElapsed += interval;
+  secondsElapsed += c.interval;
   if (secondsElapsed > secondsInDay) {
     secondsElapsed = 0;
   }
 
   if (relayIsOn) {
-    secondsOn += interval;
+    secondsOn += c.interval;
   }
 
-  if ((secondsElapsed < maxSecondsOnPerDay) and (relayIsOn == false) and (vin > vOn)) {
+  if ((secondsElapsed < c.maxSecondsOnPerDay) and (relayIsOn == false) and (vin > c.vOn)) {
     Serial.println("turning relay on");
     relayOn();
   }
 
-  if (relayIsOn and ((vin < vOff) or (secondsOn > maxSecondsOnPerDay))) {
+  if (relayIsOn and ((vin < c.vOff) or (secondsOn > c.maxSecondsOnPerDay))) {
     Serial.println("turning relay off");
 
     relayOff();
   }
-  Serial.println("housekeeping");
-
+  
   lcdDisplayStatus();
 }

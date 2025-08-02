@@ -5,15 +5,9 @@ To load index.html to esp, from Arduino Ide
 
 To do
 
-button to toggle relay
-get data button on ui should also get status
 
-voltage measure ment code avergae a number of samples 
 
-ui should allow change to config liek thresholds and sampling rate
-
-load history
-clear history
+ui should allow change to config like thresholds and sampling rate
 
 config
 - load from file
