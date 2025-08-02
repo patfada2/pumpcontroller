@@ -5,12 +5,11 @@
 #endif
 Config::Config() {
 
-	Serial.println("Config constructor");
 	if (!LittleFS.exists(configFilename)) {
-		Serial.println("File" + configFilename + "not found - creating it");
+		Serial.println("File" + configFilename + " not found - creating it");
 		writeFile(LittleFS, configFilename.c_str(), "");
 	} else {
-		Serial.println("Found file" + configFilename);
+		Serial.println("Found file " + configFilename);
 	}
 }
 

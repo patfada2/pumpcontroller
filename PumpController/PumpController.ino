@@ -282,6 +282,10 @@ void setup() {
   Serial.println("hello from PumpController");
 
   c = Config();
+  Serial.println("loading config");
+  c.load();
+  Serial.println(c.toJson().c_str());
+
 }
 
 
