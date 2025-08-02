@@ -18,6 +18,7 @@ public:
 	
 	Config();
 	void save();
+	void load();
 	String toJson();
 	
 private:

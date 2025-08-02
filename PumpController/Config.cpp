@@ -2,25 +2,38 @@
 #include "Config.h"
 #ifndef fileutils_h
 #include "./fileutils.h"
-#endif 
+#endif
 Config::Config() {
-	
+
 	Serial.println("Config constructor");
 	if (!LittleFS.exists(configFilename)) {
-    Serial.println("File" + configFilename + "not found - creating it");
-    writeFile(LittleFS, configFilename.c_str(), "");
-  } else {
-    Serial.println("Found file" + configFilename);
-  }
-
+		Serial.println("File" + configFilename + "not found - creating it");
+		writeFile(LittleFS, configFilename.c_str(), "");
+	} else {
+		Serial.println("Found file" + configFilename);
+	}
 }
 
 void Config::save() {
-	appendFile(LittleFS,configFilename.c_str(),toJson().c_str() );
+	appendFile(LittleFS, configFilename.c_str(), toJson().c_str());
+}
+
+void Config::load() {
+	File file = LittleFS.open(configFilename.c_str(), FILE_READ);
+	StaticJsonDocument<512> doc;
+	DeserializationError error = deserializeJson(doc, file);
+	if (error)
+		Serial.println(F("Failed to read file, using default configuration"));
+
+	interval = doc["interval"];
+	vOn = doc["vOn"];
+	maxSecondsOnPerDay = doc["maxSecondsOnPerDay"];
+	vcal = doc["vcal"];
+	numSamples = doc["numSamples"];
 }
 
 String Config::toJson() {
-	DynamicJsonDocument doc(200);  // For a larger, dynamic JSON document
+	StaticJsonDocument<512> doc;
 	doc["interval"] = interval;
 	doc["vOn"] = vOn;
 	doc["maxSecondsOnPerDay"] = maxSecondsOnPerDay;
