@@ -16,12 +16,16 @@ Config::Config() {
 }
 
 void Config::save() {
-
+	appendFile(LittleFS,configFilename.c_str(),toJson().c_str() );
 }
 
 String Config::toJson() {
 	DynamicJsonDocument doc(200);  // For a larger, dynamic JSON document
 	doc["interval"] = interval;
+	doc["vOn"] = vOn;
+	doc["maxSecondsOnPerDay"] = maxSecondsOnPerDay;
+	doc["vcal"] = vcal;
+	doc["numSamples"] = numSamples;
 
 	String s;
 	serializeJson(doc, s);
