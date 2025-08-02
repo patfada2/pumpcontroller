@@ -29,6 +29,7 @@
 #include "./fileutils.h"
 #include "./lcdutils.h"
 #include "./config.h"
+#include "./wifiutils.h"
 #include "Config.h"
 
 const int secondsInDay = 3600 * 24;
@@ -52,8 +53,7 @@ const int relay1Pin = D4;  //!! check board wiring
 const int relay2Pin = 0;   //d??
 const int AC_DETECT = 0;   //need to assign a digital inpu to this
 // Replace with your network credentials
-const char* ssid = "RosieWiFi";
-const char* password = "Thr33.0n3";
+
 const int analogInPin = A0;  // ESP8266 Analog Pin ADC0 = A0
 String dataFile0 = "/voltageHistory.txt";
 String dataFile1 = "/stateHistory.txt";
@@ -200,35 +200,6 @@ void setupLittleFS() {
 
   listAllFilesInDir("/");
 }
-
-void setupWiFi() {
-
-  // Connect to Wi-Fi
-  // Set your Static IP address
-  IPAddress local_IP(192, 168, 1, 99);
-  // Set your Gateway IP address
-  IPAddress gateway(192, 168, 1, 254);
-
-  IPAddress subnet(255, 255, 255, 0);
-  IPAddress primaryDNS(8, 8, 8, 8);    //optional
-  IPAddress secondaryDNS(8, 8, 4, 4);  //optional
-
-  // Configures static IP address
-  if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS)) {
-    Serial.println("STA Failed to configure");
-  }
-
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
-    Serial.println("Connecting to WiFi..");
-  }
-
-  // Print ESP32 Local IP Address
-  Serial.println(WiFi.localIP());
-}
-
-
 
 void setupWebServer() {
   // Route for root / web page

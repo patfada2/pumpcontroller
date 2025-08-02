@@ -1,3 +1,6 @@
+#ifndef timeutils_h
+#define timeutils_h
+
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
@@ -12,3 +15,5 @@
 std::string time_tToString(time_t t);
 time_t timeStrToEpoch(std::string timeString);
 time_t getTime();
+
+#endif
