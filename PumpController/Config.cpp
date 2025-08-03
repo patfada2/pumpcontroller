@@ -6,10 +6,12 @@
 Config::Config() {
 
 	if (!LittleFS.exists(configFilename)) {
-		Serial.println("File" + configFilename + " not found - creating it");
-		writeFile(LittleFS, configFilename.c_str(), "");
+		Serial.println("File" + configFilename + " not found - creating it with defaults");
+		save();
+
 	} else {
 		Serial.println("Found file " + configFilename);
+		readFile(LittleFS, configFilename.c_str());
 	}
 }
 
@@ -23,12 +25,13 @@ void Config::load() {
 	DeserializationError error = deserializeJson(doc, file);
 	if (error)
 		Serial.println(F("Failed to read file, using default configuration"));
-
-	interval = doc["interval"];
-	vOn = doc["vOn"];
-	maxSecondsOnPerDay = doc["maxSecondsOnPerDay"];
-	vcal = doc["vcal"];
-	numSamples = doc["numSamples"];
+	else {
+		interval = doc["interval"];
+		vOn = doc["vOn"];
+		maxSecondsOnPerDay = doc["maxSecondsOnPerDay"];
+		vcal = doc["vcal"];
+		numSamples = doc["numSamples"];
+	}
 }
 
 String Config::toJson() {

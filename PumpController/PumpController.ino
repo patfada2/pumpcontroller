@@ -187,7 +187,8 @@ void setupLittleFS() {
     Serial.println("Found file" + dataFile1);
   }
 
-  listAllFilesInDir("/");
+   listAllFilesInDir("/");
+   listAllFilesInDir("/plugin/");
 }
 
 void setupWebServer() {
@@ -196,6 +197,18 @@ void setupWebServer() {
     Serial.println("sending html..");
     request->send(LittleFS, "/index.html");
   });
+
+  server.on("/plugin/json-ui.jquery.js", HTTP_GET, [](AsyncWebServerRequest* request) {
+    Serial.println("sending html..");
+    request->send(LittleFS, "/plugin/json-ui.jquery.js");
+  });
+
+  server.on("/plugin/json-ui.css", HTTP_GET, [](AsyncWebServerRequest* request) {
+    Serial.println("sending html..");
+    request->send(LittleFS, "/plugin/json-ui.css");
+  });
+
+
   server.on("/GET_VOLT_HISTORY", HTTP_GET, [](AsyncWebServerRequest* request) {
     request->send(200, "text/plain", readVoltageData().c_str());
   });
@@ -286,10 +299,13 @@ void setup() {
   c.load();
   Serial.println(c.toJson().c_str());
 
+
+
 }
 
 
 void loop() {
+  
   Serial.println("loop");
 
   digitalWrite(LED_BUILTIN, HIGH);
@@ -339,4 +355,5 @@ void loop() {
   }
   
   displayStatus();
+  
 }
