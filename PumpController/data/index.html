@@ -87,7 +87,7 @@
 
 	<b id="voltage_reading"></b><br>
 	<b id="relay_state"></b>
-	
+
 
 	<div id="chart-voltage" class="container"></div>
 
@@ -377,6 +377,10 @@ toggle between hiding and showing the dropdown content */
 			}
 		}
 	}
+
+	window.onload = function () {
+		getConfig()
+	};
 
 
 </script>

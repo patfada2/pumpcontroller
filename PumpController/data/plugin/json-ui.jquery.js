@@ -215,7 +215,7 @@
 
           // Add in a trigger button
           var $button = $("<button class='btn'>")
-            .text("Edit JSON")
+            .text("Edit Config")
             .click(function() {
               $this.jsonFormEditor("open");
               return false;
