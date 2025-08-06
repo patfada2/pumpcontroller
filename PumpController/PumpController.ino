@@ -191,6 +191,9 @@ void setupLittleFS() {
    listAllFilesInDir("/plugin/");
 }
 
+const char* PARAM_MESSAGE = "message";
+
+
 void setupWebServer() {
   // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest* request) {
@@ -247,6 +250,18 @@ void setupWebServer() {
   server.on("/GET_CONFIG", HTTP_GET, [](AsyncWebServerRequest* request) {
     request->send(200, "text/plain", c.toJson());
   });
+
+    // Send a POST request to <IP>/post with a form field message set to <message>
+    server.on("/SAVE_CONFIG", HTTP_POST, [](AsyncWebServerRequest *request){
+        String message;
+        if (request->hasParam(PARAM_MESSAGE, true)) {
+            message = request->getParam(PARAM_MESSAGE, true)->value();
+        } else {
+            message = "No message sent";
+        }
+        request->send(200, "text/plain", "Hello, POST: " + message);
+        Serial.println("!!!!!!!!!!!!" + message);
+    });
 
   // Start server
   server.begin();
