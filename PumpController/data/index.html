@@ -11,6 +11,14 @@
   <script src="https://code.highcharts.com/highcharts.js"></script>
   <script src="https://code.highcharts.com/stock/modules/stock.js"></script>
 
+	<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+	<link href="https://www.jqueryscript.net/css/jquerysctipttop.css" rel="stylesheet" type="text/css">
+	<title>Pump Controller</title>
+	<script src="/plugin/json-ui.jquery.js"></script>
+	
+	<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/blitzer/jquery-ui.css">
+	<link href="./plugin/json-ui.css" rel="stylesheet" /
+	
 </head>
 <body>
 
@@ -18,7 +26,19 @@
 	<div class="container  border border-primary">
 		
 
-		<div class="row row bg-primary"><H1>Pump Controller</H1></div>
+		<div class="container">
+
+		<!--<textarea id="config" style="display: none;"></textarea> -->
+		<textarea id="config"></textarea>
+
+	</div>
+	<script type="text/javascript">
+		// Run the form editor on fields that contain json
+		$(function () {
+			$("#config").jsonFormEditor("init");
+		});
+
+	</script>
 
 		<div class="row bg-light  border border-primary">
 			<div class="col-sm-2  border border-primary">
@@ -48,19 +68,37 @@
 			</div>
 			<div class="col-sm-5  border border-primary" id="right">
 
-
-				<div class="class=" container-fluid"">
-					<label>config goes here</label>
-					<input type="config" class="form-control" id="config" placeholder="...." name="email">
-
+				<div class="row mb-3">
+					<label for="volts" class="col-sm-2 col-form-label col-form-label-sm">Volts</label>
+					<div class="col-sm-10"><input type="email" class="form-control form-control-sm" id="voltage_readingx" placeholder="xx"></div>
+				<b id="voltage_reading"></b>
+	
 				</div>
-				<script type="text/javascript">
-					// Run the form editor on fields that contain json
-					$(function () {
-						$("#config").jsonFormEditor("init");
-					});
 
-				</script>
+				<div class="row mb-3">
+					<label for="relay1" class="col-sm-2 col-form-label col-form-label-sm">Relay 1</label>
+					<div class="col-sm-10"><input type="text" class="form-control form-control-sm" id="relay_statex" placeholder="on/off"></div>
+					<b id="relay_state"></b>
+				</div>
+
+				<div class="row mb-3">
+					<label for="timeOn" class="col-sm-2 col-form-label col-form-label-sm">Time on</label>
+					<div class="col-sm-10"><input type="text" class="form-control form-control-sm" id="timeOn" placeholder="yyy"></div>
+				</div>
+
+				<div class="row mb-3">
+					<label for="timeLeft" class="col-sm-2 col-form-label col-form-label-sm">Time remaining</label>
+					<div class="col-sm-10"><input type="text" class="form-control form-control-sm" id="timeLeft" placeholder="ttt"></div>
+				</div>
+
+				<div class="row mb-3">
+					<label for="sample" class="col-sm-2 col-form-label col-form-label-sm">Sample</label>
+					<div class="col-sm-10"><input type="text" class="form-control form-control-sm" id="sample" placeholder="sss"></div>
+				</div>
+
+				<div class="row mb-3">  <button type="button" class="btn btn-outline-primary">Refresh</button></div>
+
+				
 
 			</div>
 		</div>
