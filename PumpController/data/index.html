@@ -199,6 +199,10 @@
 		series: [{
 			showInLegend: true,
 			data: [],
+			dataLabels: {
+				enabled: true,
+				format: '{y:.3f}' // Formats y-value to three decimal places
+			},
 
 			color: Highcharts.getOptions().colors[1],
 		},
@@ -352,10 +356,8 @@
 	function toggleRelay() {
 		var xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function () {
-			if (this.readyState == 4 && this.status == 200) {
-			
-				log(xhttp.responseText);
-			}
+			if (this.readyState == 4 && this.status == 200) {			
+				log(xhttp.responseText);			}
 		};
 		xhttp.open("GET", "/TOGGLE_RELAY", true);
 		xhttp.send();
