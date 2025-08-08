@@ -14,7 +14,7 @@
 	<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 	<link href="https://www.jqueryscript.net/css/jquerysctipttop.css" rel="stylesheet" type="text/css">
 	<title>Pump Controller</title>
-	<script src="/plugin/json-ui.jquery.js"></script>
+	<script src="./plugin/json-ui.jquery.js"></script>
 	
 	<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/blitzer/jquery-ui.css">
 	<link href="./plugin/json-ui.css" rel="stylesheet" /
@@ -115,7 +115,15 @@
 		
 	</div>
 
-  <div class="row row bg-secondary"><H6><a class ="text-light" href="https://github.com/patfada2/pumpcontroller">source</a></H6></div>
+	<div class="row row bg-secondary  border border-primary">
+     	<div class="col-sm-2">
+     		<H6><a class ="text-light" href="https://github.com/patfada2/pumpcontroller">source</a></H6>
+        </div>
+        <div class="col-sm-10 text-light" id="log">
+     		...
+        </div>
+        
+     </div>
 
 
 </body>
@@ -234,6 +242,11 @@
 		credits: {enabled: false}
 	});
 
+	function log(msg) {
+    	document.getElementById("log").innerHTML = msg;
+    }
+
+
 	function getData() {
 		readVoltage();
 		readRelayState();
@@ -249,7 +262,7 @@
 				const obj = JSON.parse(json);
 				chartT.series[0].setData(obj);
 
-				document.getElementById("history").innerHTML = "loaded voltage history";
+				log("loaded voltage history");
 
 			}
 		};
