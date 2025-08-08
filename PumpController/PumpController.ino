@@ -297,6 +297,7 @@ void setup() {
   setupLCD();
   setupWiFi();
   setupLittleFS();
+  //LittleFS.format();
   setupWebServer();
 
 

@@ -214,7 +214,7 @@
         if(action == "init") {
 
           // Add in a trigger button
-          var $button = $("<button class='btn btn-outline-primary'>")
+          var $button = $("<button class='btn btn-outline-primary w-100'>")
             .text("Edit Config")
             .click(function() {
               $this.jsonFormEditor("open");
