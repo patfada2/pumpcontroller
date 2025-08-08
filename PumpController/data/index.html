@@ -197,18 +197,22 @@
 				'directions.'
 		},
 		series: [{
-			showInLegend: true,
+			showInLegend: true,			
 			data: [],
 			dataLabels: {
 				enabled: true,
-				format: '{y:.3f}' // Formats y-value to three decimal places
+				format: '{y:.2f}' // Formats y-value to 2 decimal places
 			},
 
 			color: Highcharts.getOptions().colors[1],
 		},
 		{
 			showInLegend: true,
-			data: [],
+			data: [],	
+			dataLabels: {
+				enabled: true,
+				// doesnt work format: '{y:.2d}' 
+			},
 			yaxis: 1,
 			color: Highcharts.getOptions().colors[2],
 		}],
