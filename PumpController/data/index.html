@@ -58,33 +58,31 @@
 
 				<div class="row mb-3">
 					<label for="volts" class="col-sm-2 col-form-label col-form-label-sm">Volts</label>
-					<div class="col-sm-10"><input type="email" class="form-control form-control-sm" id="voltage_readingx" placeholder="xx"></div>
-				<b id="voltage_reading"></b>
+					<div class="col-sm-10"><input type="email" class="form-control form-control-sm" name="voltage_reading" placeholder="xx"></div>				
 	
 				</div>
 
 				<div class="row mb-3">
 					<label for="relay1" class="col-sm-2 col-form-label col-form-label-sm">Relay 1</label>
-					<div class="col-sm-10"><input type="text" class="form-control form-control-sm" id="relay_statex" placeholder="on/off"></div>
-					<b id="relay_state"></b>
+					<div class="col-sm-10"><input type="text" class="form-control form-control-sm" name="relay_state" placeholder="on/off"></div>				
 				</div>
 
 				<div class="row mb-3">
 					<label for="timeOn" class="col-sm-2 col-form-label col-form-label-sm">Time on</label>
-					<div class="col-sm-10"><input type="text" class="form-control form-control-sm" id="timeOn" placeholder="yyy"></div>
+					<div class="col-sm-10"><input type="text" class="form-control form-control-sm" name="timeOn" placeholder="yyy"></div>
 				</div>
 
 				<div class="row mb-3">
 					<label for="timeLeft" class="col-sm-2 col-form-label col-form-label-sm">Time remaining</label>
-					<div class="col-sm-10"><input type="text" class="form-control form-control-sm" id="timeLeft" placeholder="ttt"></div>
+					<div class="col-sm-10"><input type="text" class="form-control form-control-sm" name="timeLeft" placeholder="ttt"></div>
 				</div>
 
 				<div class="row mb-3">
 					<label for="sample" class="col-sm-2 col-form-label col-form-label-sm">Sample</label>
-					<div class="col-sm-10"><input type="text" class="form-control form-control-sm" id="sample" placeholder="sss"></div>
+					<div class="col-sm-10"><input type="text" class="form-control form-control-sm" name="sample" placeholder="sss"></div>
 				</div>
 
-				<div class="row mb-3">  <button type="button" class="btn btn-outline-primary">Refresh</button></div>
+				<div class="row mb-3">  <button type="button" class="btn btn-outline-primary"   onclick="getData()">Refresh</button></div>
 
 <div class="row mb-3">
 	<div class="container">
@@ -306,9 +304,7 @@
 				// Typical action to be performed when the document is ready:
 				const json = xhttp.responseText;
 				const obj = JSON.parse(json);
-
-				document.getElementById("voltage_reading").innerHTML = "volts: " + obj.y;
-
+				document.getElementsByName("voltage_reading")[0].placeholder=obj.y;				
 			}
 		};
 		xhttp.open("GET", "/GET_VOLTAGE", true);
@@ -329,7 +325,7 @@
 		var xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function () {
 			if (this.readyState == 4 && this.status == 200) {
-				document.getElementById("voltage_reading").innerHTML = "relay :" + xhttp.responseText;
+				document.getElementsByName("relay_state")[0].placeholder= xhttp.responseText;			
 			}
 		};
 		xhttp.open("GET", "/GET_RELAY_STATE", true);
