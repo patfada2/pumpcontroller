@@ -40,7 +40,7 @@
 						<li><a class="dropdown-item" href="javascript:toggleRelay();">Toggle Relay</a></li>
 						<li><a class="dropdown-item" href="javascript:getHistory();">Load History</a></li>
 						<li><a class="dropdown-item" href="javascript:clearHistory();">Clear History</a></li>
-						<li><a class="dropdown-item" href="javascript:getConfig();">Get Config</a></li>
+						<li><a class="dropdown-item" href="javascript:getConfig();">Load Config</a></li>
 					</ul>
 				</div>
              </div>
@@ -51,10 +51,21 @@
 	
 
 		<div class="row bg-light  border border-primary">
-			<div class="col-sm-2  border border-primary">
-		
-				
+			<div class="col-sm-2  border border-primary pt-3">
+							
+									
+					<div class="row mb-3">
+						<div class="container">
+							<textarea id="config" style="display: none;"></textarea>
+						</div>
+										<script type="text/javascript">
+											// Run the form editor on fields that contain json
+											$(function () {
+												$("#config").jsonFormEditor("init");
+											});
 
+										</script>			
+					</div>
 
 			</div>
 			<div class="col-sm-5 bg-white" id="Middle">
@@ -93,24 +104,7 @@
 
 				<div class="row mb-3">  <button type="button" class="btn btn-outline-primary"   onclick="getData()">Refresh</button></div>
 
-<div class="row mb-3">
-	<div class="container">
-
-		<!--<textarea id="config" style="display: none;"></textarea> -->
-		<textarea id="config"></textarea>
-
 	</div>
-	<script type="text/javascript">
-		// Run the form editor on fields that contain json
-		$(function () {
-			$("#config").jsonFormEditor("init");
-		});
-
-	</script>
-				
-
-			</div>
-		</div>
 
 		
 	</div>
@@ -279,8 +273,7 @@
 
 				const obj = JSON.parse(json);
 				chartT.series[1].setData(obj);
-
-				document.getElementById("history").innerHTML = "loaded state history";
+				log("loaded state history");
 
 			}
 		};
@@ -292,7 +285,8 @@
 		var xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function () {
 			if (this.readyState == 4 && this.status == 200) {
-				document.getElementById("history").innerHTML = "cleared voltage history";
+				
+				log("cleared voltage history");
 				if (chartT.series.length) {
 					chartT.series[0].setData([]);
 				}
@@ -306,8 +300,8 @@
 	function clearRelayStateHistory() {
 		var xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function () {
-			if (this.readyState == 4 && this.status == 200) {
-				document.getElementById("history").innerHTML = "cleared relay state history";
+			if (this.readyState == 4 && this.status == 200) {				
+				log("cleared relay state history");
 				if (chartT.series.length) {
 					chartT.series[0].setData([]);
 				}
@@ -359,8 +353,8 @@
 		var xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function () {
 			if (this.readyState == 4 && this.status == 200) {
-
-				document.getElementById("relay_state").innerHTML = "relay :" + xhttp.responseText;
+			
+				log(xhttp.responseText);
 			}
 		};
 		xhttp.open("GET", "/TOGGLE_RELAY", true);
@@ -373,6 +367,7 @@
 			if (this.readyState == 4 && this.status == 200) {
 
 				document.getElementById("config").innerHTML = xhttp.responseText;
+				log(xhttp.responseText);
 
 			}
 		};
@@ -392,7 +387,6 @@
 		xhttp.open("PUT", "/SAVE_CONFIG", document.getElementById("msg").innerHTML);
 		xhttp.send();
 	};
-
 
 
 	/* When the user clicks on the button,
