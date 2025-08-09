@@ -45,7 +45,7 @@
 
     function formFromJson(json) {
       var $form = $("<form>")
-        .addClass("form-horizontal");
+        .addClass("form-group");
 
       var parsed = $.parseJSON(json);
       
@@ -238,7 +238,7 @@
             modal: true,
             width: 500,
             buttons: {
-              "Finished": function() {
+              "Save": function() {
                 $this.jsonFormEditor("close");
                 $modal.dialog( "close" );
 				

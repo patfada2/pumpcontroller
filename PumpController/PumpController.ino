@@ -130,6 +130,12 @@ void saveRelayState() {
   appendFile(LittleFS, dataFile1.c_str(), rdata.c_str());
 }
 
+
+String getTimeElapsed() {
+  String data = "{\"secondsElapsed\":" + String(secondsElapsed) + ",\"secondsOn\":" + String(secondsOn) + "}";
+  return data;
+}
+
 String booleanToOnOff(boolean flag) {
   if (flag) {
     return "on";
@@ -250,6 +256,9 @@ void setupWebServer() {
     request->send(200, "text/plain", c.toJson());
   });
 
+  server.on("/GET_ELAPSED", HTTP_GET, [](AsyncWebServerRequest* request) {
+    request->send(200, "text/plain", getTimeElapsed());
+  });
 
   server.addHandler(new AsyncCallbackJsonWebHandler("/SAVE_CONFIG", [](AsyncWebServerRequest* request, JsonVariant& json) {
     Serial.println("received save config request");

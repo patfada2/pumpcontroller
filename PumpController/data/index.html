@@ -36,7 +36,8 @@
 					<ul class="dropdown-menu">
 
 						<li><a class="dropdown-item" href="javascript:readVoltage();">Read Voltage</a></li>
-						<li><a class="dropdown-item" href="javascript:readRelayState();">Read Relay State</a></li>						
+						<li><a class="dropdown-item" href="javascript:readRelayState();">Read Relay State</a></li>	
+						<li><a class="dropdown-item" href="javascript:getElapsed();">Read Time Elapsed</a></li>							
 						<li><a class="dropdown-item" href="javascript:getHistory();">Load History</a></li>
 						<li><a class="dropdown-item" href="javascript:clearHistory();">Clear History</a></li>
 						<li><a class="dropdown-item" href="javascript:getConfig();">Load Config</a></li>
@@ -56,7 +57,7 @@
 									
 					<div class="row mb-3">
 						<div class="container">
-							<textarea id="config" style="display: none;"></textarea>
+							<textarea id="config" style="display: none;">{"interval":60,"vOn":13.3,"maxSecondsOnPerDay":4800,"vcal":44,"numSamples":5}</textarea>
 						</div>
 										<script type="text/javascript">
 											// Run the form editor on fields that contain json
@@ -99,10 +100,7 @@
 					<div class="col-sm-10"><input type="text" class="form-control form-control-sm" name="timeLeft" placeholder="ttt"></div>
 				</div>
 
-				<div class="row mb-3">
-					<label for="sample" class="col-sm-2 col-form-label col-form-label-sm">Sample</label>
-					<div class="col-sm-10"><input type="text" class="form-control form-control-sm" name="sample" placeholder="sss"></div>
-				</div>
+				
 
 				<div class="row mb-3">  <button type="button" class="btn btn-outline-primary"   onclick="getData()">Refresh</button></div>
 
@@ -254,6 +252,7 @@
 	function getData() {
 		readVoltage();
 		readRelayState();
+		getElapsed();
 	}
 
 
@@ -338,6 +337,20 @@
 		xhttp.send();
 	};
 
+	function getElapsed() {
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function () {
+			if (this.readyState == 4 && this.status == 200) {
+				const json = xhttp.responseText;
+				const obj = JSON.parse(json);
+				document.getElementsByName("timeLeft")[0].placeholder=obj.secondsElapsed;			
+				document.getElementsByName("timeOn")[0].placeholder=obj.secondsOn;
+			}
+		};
+		xhttp.open("GET", "/GET_ELAPSED", true);
+		xhttp.send();
+	};
+
 	function getHistory() {
 		getStateHistory();
 		getVoltageHistory();
@@ -382,6 +395,7 @@
 		xhttp.open("GET", "/GET_CONFIG", true);
 		xhttp.send();
 	};
+
 
 	function saveConfig(json) {
 		
@@ -434,7 +448,8 @@ toggle between hiding and showing the dropdown content */
 	}
 
 	window.onload = function () {
-		getConfig()
+		getConfig();
+		getData();
 	};
 
 
