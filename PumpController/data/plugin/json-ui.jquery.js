@@ -241,6 +241,7 @@
               "Finished": function() {
                 $this.jsonFormEditor("close");
                 $modal.dialog( "close" );
+				
               },
               Cancel: function() {
                 $modal.dialog( "close" );
@@ -271,6 +272,7 @@
           var $form = $modal.find(".json-ui-form>form");
           var json = jsonFromForm($form);
           $this.val(json);
+		  saveConfig(json);
         }
 
       });

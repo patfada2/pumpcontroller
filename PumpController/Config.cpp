@@ -19,6 +19,18 @@ void Config::save() {
 	appendFile(LittleFS, configFilename.c_str(), toJson().c_str());
 }
 
+void Config::update(JsonObject config) {
+	// Access JSON elements like:
+	interval = config["interval"].as<int>();
+	vOn = config["vOn"].as<double>();
+	vOff = vOn = config["vOn"].as<double>();
+	// Serial.printf("interval: %s, vOn: %s\n", interval.c_str(), vOn.c_str());
+	maxSecondsOnPerDay = config["maxSecondsOnPerDay"].as<int>();
+	vcal = config["vcal"].as<double>();
+	numSamples = config["numSamples"].as<int>();
+}
+
+
 void Config::load() {
 	File file = LittleFS.open(configFilename.c_str(), FILE_READ);
 	StaticJsonDocument<512> doc;
@@ -31,8 +43,11 @@ void Config::load() {
 		maxSecondsOnPerDay = doc["maxSecondsOnPerDay"];
 		vcal = doc["vcal"];
 		numSamples = doc["numSamples"];
+
+		Serial.println("updated config to + toJson()");
 	}
 }
+
 
 String Config::toJson() {
 	StaticJsonDocument<512> doc;

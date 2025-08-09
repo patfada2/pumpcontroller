@@ -32,6 +32,8 @@
 #include "./config.h"
 #include "./wifiutils.h"
 #include "Config.h"
+#include <AsyncJson.h>
+
 
 const int secondsInDay = 3600 * 24;
 
@@ -69,9 +71,9 @@ if (AC is off) and (V_dc >12)
 */
 
 double A0toV(double _a0) {
-  Serial.printf("a0=%f, v= %f", _a0, _a0/c.vcal);
+  Serial.printf("a0=%f, v= %f", _a0, _a0 / c.vcal);
   Serial.println();
-  return _a0/c.vcal;
+  return _a0 / c.vcal;
 }
 
 
@@ -92,11 +94,11 @@ int readA0() {
 double readA0Avg(int count) {
   double sample = 0;
   for (int i = 0; i < count; i++) {
-    sample=sample+readA0();
+    sample = sample + readA0();
     delay(10);
   }
-  double avg = sample/count;
-  Serial.printf("avg=%f",avg);
+  double avg = sample / count;
+  Serial.printf("avg=%f", avg);
   return avg;
 }
 
@@ -134,8 +136,6 @@ String booleanToOnOff(boolean flag) {
   } else return "off";
 }
 
-
-
 String readVoltageData() {
   return readDataFile(dataFile0);
 }
@@ -143,7 +143,6 @@ String readVoltageData() {
 String readStatusData() {
   return readDataFile(dataFile1);
 }
-
 
 String clearVoltageHistory() {
   //delete and recreate the file
@@ -187,8 +186,8 @@ void setupLittleFS() {
     Serial.println("Found file" + dataFile1);
   }
 
-   listAllFilesInDir("/");
-   listAllFilesInDir("/plugin/");
+  listAllFilesInDir("/");
+  listAllFilesInDir("/plugin/");
 }
 
 const char* PARAM_MESSAGE = "message";
@@ -251,17 +250,20 @@ void setupWebServer() {
     request->send(200, "text/plain", c.toJson());
   });
 
-    // Send a POST request to <IP>/post with a form field message set to <message>
-    server.on("/SAVE_CONFIG", HTTP_POST, [](AsyncWebServerRequest *request){
-        String message;
-        if (request->hasParam(PARAM_MESSAGE, true)) {
-            message = request->getParam(PARAM_MESSAGE, true)->value();
-        } else {
-            message = "No message sent";
-        }
-        request->send(200, "text/plain", "Hello, POST: " + message);
-        Serial.println("!!!!!!!!!!!!" + message);
-    });
+
+  server.addHandler(new AsyncCallbackJsonWebHandler("/SAVE_CONFIG", [](AsyncWebServerRequest* request, JsonVariant& json) {
+    Serial.println("received save config request");
+    if (json.is<JsonObject>()) {
+      JsonObject obj = json.as<JsonObject>();
+      c.update(obj);
+      c.save();
+     
+      request->send(200, "application/json", "{\"status\":\"success\"}");
+    } else {
+      request->send(400, "text/plain", "Invalid JSON format");
+    }
+  }));
+
 
   // Start server
   server.begin();
@@ -270,16 +272,16 @@ void setupWebServer() {
 void displayStatus() {
 
 
-String msg1 = String(secondsOn) + "/" + String(c.maxSecondsOnPerDay);
-String msg2;
+  String msg1 = String(secondsOn) + "/" + String(c.maxSecondsOnPerDay);
+  String msg2;
 
- if (relayIsOn) {
+  if (relayIsOn) {
     msg2 = "ON v=" + String(vin, 2);
   } else msg2 = "OFF v=" + String(vin, 2);
-  
+
   msg2 = msg2 + " t=" + String(secondsElapsed);
 
-  lcdDisplayStatus(msg1,msg2);
+  lcdDisplayStatus(msg1, msg2);
 }
 
 
@@ -314,14 +316,11 @@ void setup() {
   Serial.println("loading config");
   c.load();
   Serial.println(c.toJson().c_str());
-
-
-
 }
 
 
 void loop() {
-  
+
   Serial.println("loop");
 
   digitalWrite(LED_BUILTIN, HIGH);
@@ -369,7 +368,6 @@ void loop() {
 
     relayOff();
   }
-  
+
   displayStatus();
-  
 }

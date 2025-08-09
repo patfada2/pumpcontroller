@@ -9,7 +9,7 @@ const String configFilename = "/config.json";
 class Config {
 // class code goes here
 public:
-	int interval = 5;  //sampling interval in seconds
+	int interval = 50;  //sampling interval in seconds
 	double vOn = 13.3;
   double vOff = 11.0;
   int maxSecondsOnPerDay = 4800;
@@ -20,6 +20,7 @@ public:
 	void save();
 	void load();
 	String toJson();
+	void update(JsonObject config);
 	
 private:
 	
