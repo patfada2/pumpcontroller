@@ -4,20 +4,14 @@
   <title>Pump Controller</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
   <script src="https://code.highcharts.com/highcharts.js"></script>
   <script src="https://code.highcharts.com/stock/modules/stock.js"></script>
 
-	<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
-	<link href="https://www.jqueryscript.net/css/jquerysctipttop.css" rel="stylesheet" type="text/css">
 	<title>Pump Controller</title>
-	<script src="./plugin/json-ui.jquery.js"></script>
 	
-	<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/blitzer/jquery-ui.css">
-	<link href="./plugin/json-ui.css" rel="stylesheet" /
 	
 </head>
 <body>
@@ -46,38 +40,26 @@
 				</div>
              </div>
              <div class="col-sm-10  border border-primary">
-             	<H1 class = "text-center">Pump Controller</H1>
+             	<H1>Pump Controller</H1>
              </div>
         </div>
 	
 
 		<div class="row bg-light  border border-primary">
 			<div class="col-sm-2  border border-primary pt-3">
-							
-									
-					<div class="row mb-3">
-						<div class="container">
-							<textarea id="config" style="display: none;">{"interval":60,"vOn":13.3,"maxSecondsOnPerDay":4800,"vcal":44,"numSamples":5}</textarea>
-						</div>
-										<script type="text/javascript">
-											// Run the form editor on fields that contain json
-											$(function () {
-												$("#config").jsonFormEditor("init");
-											});
-
-										</script>			
-					</div>
-					<div class="row mb-3">  <button type="button" class="btn btn-outline-primary w-100" onclick="toggleRelay()">Toggle Relay</button></div>
-
-
+																				
+					<div class="row mb-3">  <button type="button" class="btn btn-outline-primary w-100" onclick="toggleRelay()">Toggle Relay</button></div>	
+					<div class="row mb-3">  <button type="button" class="btn btn-outline-primary w-100" onclick="editConfig()">Edit Config</button></div>	
+				
+					
 			</div>
-			<div class="col-sm-5 bg-white" id="Middle">
+			<div class="col-sm-7 bg-white" id="Middle">
 
 				<div id="chart-voltage" class="container"></div>
 
 
 			</div>
-			<div class="col-sm-5  border border-primary" id="right">
+			<div class="col-sm-3  border border-primary" id="right">
 
 				<div class="row mb-3">
 					<label for="volts" class="col-sm-2 col-form-label col-form-label-sm">Volts</label>
@@ -111,18 +93,94 @@
 
 	<div class="row row bg-secondary  border border-primary">
      	<div class="col-sm-2">
-     		<H6><a class ="text-light" href="https://github.com/patfada2/pumpcontroller">source</a></H6>
+     		<H6>source:  <a class ="text-light" href="https://github.com/patfada2/pumpcontroller"> github</a></H6>
         </div>
         <div class="col-sm-10 text-light" id="log">
      		...
         </div>
         
      </div>
+	 
 
 
-</body>
+<div id="myModal" class="modal" data-bs-backdrop="static" role="dialog">
+  <div class="modal-dialog">
+  <div class="modal-content">
+<div class="container">
+  
+  <form class="form-horizontal bg-light p-4"   action="javascript:saveConfig()">
+	 <div class="form-group row">
+		<label for="interval" class="col-sm-4 col-form-label mr-2">Interval</label>
+		<div class="col-sm-8">
+			<input type="number" class="form-control" id="interval" name="interval"  placeholder="xx">
+		</div>
+	</div>
+	
+	 <div class="form-group row">
+		<label for="von" class="col-sm-4 col-form-label mr-2">V On</label>
+		<div class="col-sm-8">
+			<input type="number" class="form-control" id="von" name="von"  placeholder="x">
+		</div>
+	</div>
+	<div class="form-group row">
+		<label for="voff" class="col-sm-4 col-form-label mr-2">V Off</label>
+		<div class="col-sm-8">
+			<input type="number" class="form-control" id="voff" name="voff"  placeholder="x">
+		</div>
+	</div>
+	<div class="form-group row">
+		<label for="maxSecondsOnPerDay" class="col-sm-4 col-form-label mr-2">Max Seconds On Per Day</label>
+		<div class="col-sm-8">
+			<input type="number" class="form-control" id="maxSecondsOnPerDay" name="maxSecondsOnPerDay"  placeholder="x">
+		</div>
+	</div>
+	<div class="form-group row">
+		<label for="vcal" class="col-sm-4 col-form-label mr-2">Voltage calibration</label>
+		<div class="col-sm-8">
+			<input type="number" class="form-control" id="vcal" name="vcal"  placeholder="x">
+		</div>
+	</div>
+    <div class="form-group row">
+		<label for="numSamples" class="col-sm-4 col-form-label mr-2">Number of Samples</label>
+		<div class="col-sm-8">
+			<input type="number" class="form-control" id="numSamples" name="numSamples"  placeholder="x">
+		</div>
+	</div>
+	
+	
+	
+    <div class="form-group">      
+		<div class="row pt-3">
+			  <div class="col-sm-10 ">
+				<button type="submit" class="btn btn-outline-primary"  >save</button>
+			  </div>
+			  <div class="col-sm-2">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			  </div>
+		</div>
+	</div>
+  </form>
+</div>
+
+</div>
+</div>
+</div>
 
 <script>
+
+	 class Config {
+		  // The constructor method is a special method for creating and initializing an object created with a class.
+		  constructor(interval, von, voff,maxSecondsOnPerDay,vcal,numSamples ) {
+			this.interval = interval;
+			this.von = von;
+			this.voff = voff;
+			this.maxSecondsOnPerDay = maxSecondsOnPerDay;
+			this.vcal = vcal;
+			this.numSamples = numSamples;
+		  }
+		}  
+	
+	var config;
 
 	setInterval(getData, 30000);
 
@@ -368,8 +426,11 @@
 		var xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function () {
 			if (this.readyState == 4 && this.status == 200) {
-				document.getElementsByName("relay_state")[0].placeholder= xhttp.responseText;	
 				
+				const json = xhttp.responseText;
+				const obj = JSON.parse(json);
+				chartT.series[0].addPoint(obj.x, obj.y);
+				document.getElementsByName("relay_state")[0].placeholder= obj.state;					
 			}
 		};
 		xhttp.open("GET", "/GET_RELAY_STATE", true);
@@ -391,20 +452,34 @@
 		xhttp.onreadystatechange = function () {
 			if (this.readyState == 4 && this.status == 200) {
 
-				document.getElementById("config").innerHTML = xhttp.responseText;
 				log(xhttp.responseText);
-
-			}
+				const json = xhttp.responseText;
+				config = JSON.parse(json);
+							
+			} 
+			else 
+				config=new Config(0,0,0,0,0,0);
+				log("connection to pump controller failed");
 		};
 		xhttp.open("GET", "/GET_CONFIG", true);
 		xhttp.send();
 	};
 
-
-	function saveConfig(json) {
+	
+	function saveConfig() {
+	
+	    config.interval = document.getElementById("interval").value;
+		config.von = document.getElementById("von").value;
+		config.voff = document.getElementById("voff").value; 
+		config.maxSecondsOnPerDay = document.getElementById("maxSecondsOnPerDay").value;
+		config.vcal = document.getElementById("vcal").value;
+		config.numSamples = document.getElementById("numSamples").value;
 		
 		const xhr = new XMLHttpRequest();
 		const url = "/SAVE_CONFIG"; 
+					
+        json = JSON.stringify(config);
+		console.log(json);
 		
 
 		xhr.open('POST', url, true); // Method, URL, Asynchronous (true)
@@ -428,8 +503,21 @@
 
 		xhr.send(json); // Send the data, stringified for JSON
 		log("saved config");
+		
+		
 	};
 
+	function editConfig() {
+	  const myModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('myModal'));
+	  document.getElementById("interval").value = config.interval;
+		document.getElementById("von").value = config.von; 
+		document.getElementById("voff").value = config.voff; 
+		document.getElementById("maxSecondsOnPerDay").value = config.maxSecondsOnPerDay;
+		document.getElementById("vcal").value = config.vcal;
+		document.getElementById("numSamples").value =  config.numSamples;
+		myModal.show();
+	  
+	}
 
 	/* When the user clicks on the button,
 toggle between hiding and showing the dropdown content */
@@ -450,10 +538,13 @@ toggle between hiding and showing the dropdown content */
 			}
 		}
 	}
+	
+
 
 	window.onload = function () {
 		getConfig();
 		getData();
+		
 	};
 
 

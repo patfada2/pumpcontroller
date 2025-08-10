@@ -238,7 +238,8 @@ void setupWebServer() {
   });
 
   server.on("/GET_RELAY_STATE", HTTP_GET, [](AsyncWebServerRequest* request) {
-    request->send(200, "text/plain", booleanToOnOff(relayIsOn).c_str());
+    String data = "{\"x\":" + String(dateTime) + ",\"y\":" + String(relayIsOn) + ",\"state\":" + "\"" + booleanToOnOff(relayIsOn) + "\"}";
+    request->send(200, "text/plain",data.c_str());
   });
 
   server.on("/GET_VOLTAGE", [](AsyncWebServerRequest* request) {

@@ -5,10 +5,4 @@ To load index.html to esp, from Arduino Ide
 
 To do
 
-
-
-ui should allow change to config like thresholds and sampling rate
-
-config
-- load from file
-- edit from webserver
+toggle relay should update graph
