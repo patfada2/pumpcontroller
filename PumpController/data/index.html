@@ -78,7 +78,7 @@
 				</div>
 
 				<div class="row mb-3">
-					<label for="timeLeft" class="col-sm-2 col-form-label col-form-label-sm">Time remaining</label>
+					<label for="timeLeft" class="col-sm-2 col-form-label col-form-label-sm">Time elapsed</label>
 					<div class="col-sm-10"><input type="text" class="form-control form-control-sm" name="timeLeft" placeholder="ttt"></div>
 				</div>
 
@@ -463,7 +463,8 @@
 		var xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function () {
 			if (this.readyState == 4 && this.status == 200) {			
-				log(xhttp.responseText);			}
+				log(xhttp.responseText);			
+				getData();}
 		};
 		xhttp.open("GET", "/TOGGLE_RELAY", true);
 		xhttp.send();
