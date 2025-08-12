@@ -262,16 +262,19 @@
 				'directions.'
 		},
 		series: [{
+			name: 'volts',
 			showInLegend: true,			
 			data: [],
 			dataLabels: {
 				enabled: true,
 				format: '{y:.2f}' // Formats y-value to 2 decimal places
 			},
+			yAxis: 0,
 
 			color: Highcharts.getOptions().colors[1],
 		},
 		{
+			name: 'relay_state',
 			showInLegend: true,
 			data: [],	
 			dataLabels: {
@@ -280,6 +283,13 @@
 			},
 			yaxis: 1,
 			color: Highcharts.getOptions().colors[2],
+			
+			
+			
+			type: 'column',       
+			yAxis: 1
+		
+		
 		}],
 		plotOptions: {
 			line: {
@@ -297,14 +307,19 @@
 
 			title: {
 				text: 'Volts'
-			}
+			},
+			min: 0,
+			max: 20
+			
 		}, {
 			lineWidth: 1,
 			color: Highcharts.getOptions().colors[2],
 			opposite: true,
 			title: {
 				text: 'Relay Off/On'
-			}
+			},
+			min: -1,
+			max: 1
 		}],
 		credits: {enabled: false}
 	});
@@ -377,7 +392,7 @@
 			if (this.readyState == 4 && this.status == 200) {				
 				log("cleared relay state history");
 				if (chartT.series.length) {
-					chartT.series[0].setData([]);
+					chartT.series[1].setData([]);
 				}
 
 			}
@@ -436,7 +451,7 @@
 				
 				const json = xhttp.responseText;
 				const obj = JSON.parse(json);
-				chartT.series[0].addPoint(obj.y, obj.x);
+				chartT.series[1].addPoint(obj.y, obj.x);
 				document.getElementsByName("relay_state")[0].placeholder= obj.state;					
 			}
 		};
