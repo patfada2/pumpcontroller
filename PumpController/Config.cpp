@@ -16,7 +16,7 @@ Config::Config() {
 }
 
 void Config::save() {
-	appendFile(LittleFS, configFilename.c_str(), toJson().c_str());
+	writeFile(LittleFS, configFilename.c_str(), toJson().c_str());
 }
 
 void Config::update(JsonObject config) {
