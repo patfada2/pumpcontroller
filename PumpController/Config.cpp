@@ -23,7 +23,7 @@ void Config::update(JsonObject config) {
 	// Access JSON elements like:
 	interval = config["interval"].as<int>();
 	vOn = config["vOn"].as<double>();
-	vOff = vOn = config["vOn"].as<double>();
+	vOff = config["vOff"].as<double>();
 	// Serial.printf("interval: %s, vOn: %s\n", interval.c_str(), vOn.c_str());
 	maxSecondsOnPerDay = config["maxSecondsOnPerDay"].as<int>();
 	vcal = config["vcal"].as<double>();
@@ -40,6 +40,7 @@ void Config::load() {
 	else {
 		interval = doc["interval"];
 		vOn = doc["vOn"];
+		vOff = doc["vOff"];
 		maxSecondsOnPerDay = doc["maxSecondsOnPerDay"];
 		vcal = doc["vcal"];
 		numSamples = doc["numSamples"];
@@ -53,6 +54,7 @@ String Config::toJson() {
 	StaticJsonDocument<512> doc;
 	doc["interval"] = interval;
 	doc["vOn"] = vOn;
+	doc["vOff"] = vOff;
 	doc["maxSecondsOnPerDay"] = maxSecondsOnPerDay;
 	doc["vcal"] = vcal;
 	doc["numSamples"] = numSamples;

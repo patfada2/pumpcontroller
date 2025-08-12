@@ -117,15 +117,15 @@
 	</div>
 	
 	 <div class="form-group row">
-		<label for="von" class="col-sm-4 col-form-label mr-2">V On</label>
+		<label for="vOn" class="col-sm-4 col-form-label mr-2">V On</label>
 		<div class="col-sm-8">
-			<input type="number" class="form-control" id="von" name="von"  placeholder="x">
+			<input type="number step="0.01" " class="form-control" id="vOn" name="vOn"  placeholder="x">
 		</div>
 	</div>
 	<div class="form-group row">
-		<label for="voff" class="col-sm-4 col-form-label mr-2">V Off</label>
+		<label for="vOff" class="col-sm-4 col-form-label mr-2">V Off</label>
 		<div class="col-sm-8">
-			<input type="number" class="form-control" id="voff" name="voff"  placeholder="x">
+			<input type="number" step="0.01"  class="form-control" id="vOff" name="vOff"  placeholder="x">
 		</div>
 	</div>
 	<div class="form-group row">
@@ -168,19 +168,26 @@
 
 <script>
 
-	 class Config {
+	 class PCConfig {	 
+		 interval=0;
+		 vOn=0.0;
+		 vOff=0.0;
+		 maxSecondsOnPerDay=0;
+		 vcal=0;
+		 numSamples=0;
+		 
 		  // The constructor method is a special method for creating and initializing an object created with a class.
-		  constructor(interval, von, voff,maxSecondsOnPerDay,vcal,numSamples ) {
+		  constructor(interval,vOn,vOff,maxSecondsOnPerDay,vcal,numSamples ) {
 			this.interval = interval;
-			this.von = von;
-			this.voff = voff;
+			this.vOn = vOn;
+			this.vOff = vOff;
 			this.maxSecondsOnPerDay = maxSecondsOnPerDay;
 			this.vcal = vcal;
 			this.numSamples = numSamples;
 		  }
 		}  
 	
-	var config;
+	var pcConfig=new PCConfig(0,0,0,0,0,0);
 
 	setInterval(getData, 30000);
 
@@ -429,7 +436,7 @@
 				
 				const json = xhttp.responseText;
 				const obj = JSON.parse(json);
-				chartT.series[0].addPoint(obj.x, obj.y);
+				chartT.series[0].addPoint(obj.y, obj.x);
 				document.getElementsByName("relay_state")[0].placeholder= obj.state;					
 			}
 		};
@@ -454,11 +461,11 @@
 
 				log(xhttp.responseText);
 				const json = xhttp.responseText;
-				config = JSON.parse(json);
+				pcConfig = JSON.parse(json);
 							
 			} 
 			else 
-				config=new Config(0,0,0,0,0,0);
+				pcConfig=new PCConfig(0,0,0,0,0,0);
 				log("connection to pump controller failed");
 		};
 		xhttp.open("GET", "/GET_CONFIG", true);
@@ -468,17 +475,17 @@
 	
 	function saveConfig() {
 	
-	    config.interval = document.getElementById("interval").value;
-		config.von = document.getElementById("von").value;
-		config.voff = document.getElementById("voff").value; 
-		config.maxSecondsOnPerDay = document.getElementById("maxSecondsOnPerDay").value;
-		config.vcal = document.getElementById("vcal").value;
-		config.numSamples = document.getElementById("numSamples").value;
+	    pcConfig.interval = document.getElementById("interval").value;
+		pcConfig.vOn = document.getElementById("vOn").value;
+		pcConfig.vOff = document.getElementById("vOff").value; 
+		pcConfig.maxSecondsOnPerDay = document.getElementById("maxSecondsOnPerDay").value;
+		pcConfig.vcal = document.getElementById("vcal").value;
+		pcConfig.numSamples = document.getElementById("numSamples").value;
 		
 		const xhr = new XMLHttpRequest();
 		const url = "/SAVE_CONFIG"; 
 					
-        json = JSON.stringify(config);
+        json = JSON.stringify(pcConfig);
 		console.log(json);
 		
 
@@ -509,12 +516,12 @@
 
 	function editConfig() {
 	  const myModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('myModal'));
-	  document.getElementById("interval").value = config.interval;
-		document.getElementById("von").value = config.von; 
-		document.getElementById("voff").value = config.voff; 
-		document.getElementById("maxSecondsOnPerDay").value = config.maxSecondsOnPerDay;
-		document.getElementById("vcal").value = config.vcal;
-		document.getElementById("numSamples").value =  config.numSamples;
+	  document.getElementById("interval").value = pcConfig.interval;
+		document.getElementById("vOn").value = pcConfig.vOn; 
+		document.getElementById("vOff").value = pcConfig.vOff; 
+		document.getElementById("maxSecondsOnPerDay").value = pcConfig.maxSecondsOnPerDay;
+		document.getElementById("vcal").value = pcConfig.vcal;
+		document.getElementById("numSamples").value =  pcConfig.numSamples;
 		myModal.show();
 	  
 	}
@@ -538,9 +545,6 @@ toggle between hiding and showing the dropdown content */
 			}
 		}
 	}
-	
-
-
 	window.onload = function () {
 		getConfig();
 		getData();
