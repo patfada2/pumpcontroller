@@ -52,9 +52,9 @@ time_t dateTime = 1719685735000;  //29 June 2024
 std::string data;
 
 //I think lcd needs d2
-const int relay1Pin = D4;  //!! check board wiring
-const int relay2Pin = 0;   //d??
-const int AC_DETECT = 0;   //need to assign a digital inpu to this
+const int relay1Pin = D5;  //!! check board wiring
+const int relay2Pin = D6;   //d??
+const int AC_DETECT = D7;   //need to assign a digital inpu to this
 // Replace with your network credentials
 
 const int analogInPin = A0;  // ESP8266 Analog Pin ADC0 = A0
@@ -314,8 +314,10 @@ void setup() {
 
 
   _now = getTime();
-  while (_now == 0) {
+  int count = 0;
+  while ((_now == 0) && (count < 5)) {
     delay(1000);
+    count++;
     Serial.println("retrying getTime...");
     _now = getTime();
   }
