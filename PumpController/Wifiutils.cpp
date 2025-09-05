@@ -9,7 +9,9 @@ const char* ssid = "COMFAST";
 const char* password = "Thr33.0n3";
 
 
-void setupWiFi() {
+boolean setupWiFi() {
+
+  boolean result = false;
 
   // Connect to Wi-Fi
   // Set your Static IP address
@@ -24,15 +26,21 @@ void setupWiFi() {
   // Configures static IP address
   if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS)) {
     Serial.println("STA Failed to configure");
+    result = false;
   }
 
   WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
+  int retry = 0;
+  while ((WiFi.status() != WL_CONNECTED) && retry <10 ){
     delay(1000);
+    retry++;
     Serial.println("Connecting to WiFi..");
   }
-
+  if (WiFi.status() == WL_CONNECTED) {
+    result = true;
+  } else result = false;
   // Print ESP32 Local IP Address
   Serial.println(WiFi.localIP());
+  return result;
 }
 

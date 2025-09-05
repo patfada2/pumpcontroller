@@ -47,11 +47,12 @@
 
 		<div class="row bg-light  border border-primary">
 			<div class="col-sm-2  border border-primary pt-3">
-																				
-					<div class="row mb-3">  <button type="button" class="btn btn-outline-primary w-100" onclick="toggleRelay()">Toggle Relay</button></div>	
-					<div class="row mb-3">  <button type="button" class="btn btn-outline-primary w-100" onclick="editConfig()">Edit Config</button></div>	
-				
-					
+
+				<div class="row mb-3">  <button type="button" class="btn btn-outline-primary w-100" onclick="toggleRelay()">Toggle Relay</button></div>
+				<div class="row mb-3">  <button type="button" class="btn btn-outline-primary w-100" onclick="toggleRelay2()">Toggle Relay2</button></div>
+				<div class="row mb-3">  <button type="button" class="btn btn-outline-primary w-100" onclick="editConfig()">Edit Config</button></div>
+
+
 			</div>
 			<div class="col-sm-7 bg-white" id="Middle">
 
@@ -469,6 +470,18 @@
 		xhttp.open("GET", "/TOGGLE_RELAY", true);
 		xhttp.send();
 	};
+
+    function toggleRelay2() {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                log(xhttp.responseText);
+                getData();
+            }
+        };
+        xhttp.open("GET", "/TOGGLE_RELAY2", true);
+        xhttp.send();
+    };
 
 	function getConfig() {
 		var xhttp = new XMLHttpRequest();

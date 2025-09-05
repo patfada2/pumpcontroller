@@ -46,6 +46,7 @@ int secondsElapsed = 0;
 int secondsOn = 0;
 time_t _now = 0;
 boolean relayIsOn;
+boolean relay2IsOn;
 //29 June 2024
 time_t dateTime = 1719685735000;  //29 June 2024
 
@@ -53,8 +54,9 @@ std::string data;
 
 //I think lcd needs d2
 const int relay1Pin = D5;  //!! check board wiring
-const int relay2Pin = D6;   //d??
-const int AC_DETECT = D7;   //need to assign a digital inpu to this
+const int relay2Pin = D6;  //d??
+const int AC_DETECT = D7;  //need to assign a digital inpu to this
+const int AC_LED = D3;
 // Replace with your network credentials
 
 const int analogInPin = A0;  // ESP8266 Analog Pin ADC0 = A0
@@ -71,7 +73,7 @@ if (AC is off) and (V_dc >12)
 */
 
 double A0toV(double _a0) {
-  Serial.printf("a0=%f, v= %f", _a0, _a0 / c.vcal);
+  Serial.printf("a0=%f, v= %f, v_cal=%f", _a0, _a0 / c.vcal, c.vcal);
   Serial.println();
   return _a0 / c.vcal;
 }
@@ -116,6 +118,19 @@ void relayOff() {
   saveRelayState();
 }
 
+
+void relay2On() {
+  digitalWrite(relay2Pin, LOW);
+  relay2IsOn = true;
+  saveRelayState();
+}
+
+void relay2Off() {
+  digitalWrite(relay2Pin, HIGH);
+  relay2IsOn = false;
+  saveRelayState();
+}
+
 void toggleRelay() {
   saveRelayState();
   if (relayIsOn) {
@@ -123,11 +138,32 @@ void toggleRelay() {
   } else relayOn();
   displayStatus();
 }
+
+void toggleRelay2() {
+  saveRelayState();
+  if (relay2IsOn) {
+    relay2Off();
+  } else relay2On();
+  displayStatus();
+}
+
 void saveRelayState() {
   //save to file
   Serial.println("saving relay state");
   std::string rdata = "[" + time_tToString(dateTime) + "," + std::to_string(relayIsOn) + "],";
+  // to do add relay 2
   appendFile(LittleFS, dataFile1.c_str(), rdata.c_str());
+}
+
+boolean getACStatus() {
+  //  ac coupler returns high when AC detected, lo when not
+  boolean status = !digitalRead(AC_DETECT);
+  if (status) { 
+    digitalWrite(AC_LED,HIGH);
+  }else {
+    digitalWrite(AC_LED,LOW);
+  }
+  return status;
 }
 
 
@@ -237,9 +273,14 @@ void setupWebServer() {
     request->send(200, "text/plain", booleanToOnOff(relayIsOn).c_str());
   });
 
+  server.on("/TOGGLE_RELAY2", HTTP_GET, [](AsyncWebServerRequest* request) {
+    toggleRelay2();
+    request->send(200, "text/plain", booleanToOnOff(relay2IsOn).c_str());
+  });
+
   server.on("/GET_RELAY_STATE", HTTP_GET, [](AsyncWebServerRequest* request) {
     String data = "{\"x\":" + String(dateTime) + ",\"y\":" + String(relayIsOn) + ",\"state\":" + "\"" + booleanToOnOff(relayIsOn) + "\"}";
-    request->send(200, "text/plain",data.c_str());
+    request->send(200, "text/plain", data.c_str());
   });
 
   server.on("/GET_VOLTAGE", [](AsyncWebServerRequest* request) {
@@ -267,7 +308,7 @@ void setupWebServer() {
       JsonObject obj = json.as<JsonObject>();
       c.update(obj);
       c.save();
-     
+
       request->send(200, "application/json", "{\"status\":\"success\"}");
     } else {
       request->send(400, "text/plain", "Invalid JSON format");
@@ -281,8 +322,14 @@ void setupWebServer() {
 
 void displayStatus() {
 
+  String ACStatus;
+  if (getACStatus()) {
+    ACStatus = "on";
+  } else {
+    ACStatus = "off";
+  }
 
-  String msg1 = String(secondsOn) + "/" + String(c.maxSecondsOnPerDay);
+  String msg1 = String(secondsOn) + "/" + String(c.maxSecondsOnPerDay) + " AC=" + ACStatus;
   String msg2;
 
   if (relayIsOn) {
@@ -304,10 +351,18 @@ void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
   //d1 = gpo5
   pinMode(relay1Pin, OUTPUT);
+  pinMode(relay2Pin, OUTPUT);
+  pinMode(AC_DETECT, INPUT);
+  pinMode(AC_LED, OUTPUT);
   //relayOff();
-
+  getACStatus();
   setupLCD();
-  setupWiFi();
+  lcdDisplayStatus("Pump Controller", "Connecting to wifi....");
+  if (setupWiFi()) {
+    lcdDisplayStatus("wi fi connected", "ip=" + WiFi.localIP().toString());
+  } else {
+    lcdDisplayStatus("wifi connection failed", "");
+  }
   setupLittleFS();
   //LittleFS.format();
   setupWebServer();

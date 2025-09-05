@@ -7,6 +7,6 @@
 #include <ESPAsyncTCP.h>
 #include <ESP8266WiFi.h>
 
-void setupWiFi();
+boolean setupWiFi();
 
 #endif
