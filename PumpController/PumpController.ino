@@ -11,7 +11,7 @@
 #include <Hash.h>
 #include <ESPAsyncTCP.h>
 #include <ESPAsyncWebServer.h>
-
+//#include ESPAsyncWebSrv.h
 #include <ArduinoJson.h>
 #include <ESP8266WiFi.h>
 
@@ -53,10 +53,11 @@ time_t dateTime = 1719685735000;  //29 June 2024
 std::string data;
 
 //I think lcd needs d2
-const int relay1Pin = D5;  //!! check board wiring
-const int relay2Pin = D6;  //d??
+const int relay1Pin = D6;  //!! check board wiring
+const int relay2Pin = D5;  //d??
 const int AC_DETECT = D7;  //need to assign a digital inpu to this
 const int AC_LED = D3;
+const int relay2_LED = D8;
 // Replace with your network credentials
 
 const int analogInPin = A0;  // ESP8266 Analog Pin ADC0 = A0
@@ -106,14 +107,14 @@ double readA0Avg(int count) {
 
 void relayOn() {
   digitalWrite(relay1Pin, LOW);
-  digitalWrite(LED_BUILTIN, HIGH);
+ // digitalWrite(relay1_LED, HIGH);
   relayIsOn = true;
   saveRelayState();
 }
 
 void relayOff() {
   digitalWrite(relay1Pin, HIGH);
-  digitalWrite(LED_BUILTIN, LOW);
+  //digitalWrite(relay1_LED, LOW);
   relayIsOn = false;
   saveRelayState();
 }
@@ -121,12 +122,14 @@ void relayOff() {
 
 void relay2On() {
   digitalWrite(relay2Pin, LOW);
+  digitalWrite(relay2_LED, HIGH);
   relay2IsOn = true;
   saveRelayState();
 }
 
 void relay2Off() {
   digitalWrite(relay2Pin, HIGH);
+  digitalWrite(relay2_LED, LOW);
   relay2IsOn = false;
   saveRelayState();
 }
@@ -351,6 +354,7 @@ void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
   //d1 = gpo5
   pinMode(relay1Pin, OUTPUT);
+   pinMode(relay2_LED, OUTPUT);
   pinMode(relay2Pin, OUTPUT);
   pinMode(AC_DETECT, INPUT);
   pinMode(AC_LED, OUTPUT);

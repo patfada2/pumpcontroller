@@ -4,8 +4,8 @@
 
 
 
-const char* ssid = "COMFAST";
-//const char* ssid = "RosieWiFi";
+//const char* ssid = "COMFAST";
+const char* ssid = "RosieWiFi";
 const char* password = "Thr33.0n3";
 
 
@@ -15,9 +15,11 @@ boolean setupWiFi() {
 
   // Connect to Wi-Fi
   // Set your Static IP address
-  IPAddress local_IP(192, 168, 10, 99);
+  //IPAddress local_IP(192, 168, 10, 99);
+  IPAddress local_IP(192, 168, 1, 99);
   // Set your Gateway IP address
-  IPAddress gateway(192, 168, 10, 254);
+ // IPAddress gateway(192, 168, 10, 254);
+  IPAddress gateway(192, 168, 1, 254);
 
   IPAddress subnet(255, 255, 255, 0);
   IPAddress primaryDNS(8, 8, 8, 8);    //optional
