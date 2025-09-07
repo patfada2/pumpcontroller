@@ -35,6 +35,7 @@
 #include <AsyncJson.h>
 #include <ElegantOTA.h>
 #include <WebSerial.h>
+#include "common.h"
 
 
 const int secondsInDay = 3600 * 24;
@@ -83,7 +84,7 @@ if (AC is off) and (V_dc >12)
 
 double A0toV(double _a0) {
   Serial.printf("a0=%f, v= %f, v_cal=%f", _a0, _a0 / c.vcal, c.vcal);
-  Serial.println();
+  //logInfo();
   return _a0 / c.vcal;
 }
 
@@ -93,7 +94,7 @@ int readA0() {
   // read the analog in value
   int a = analogRead(analogInPin);
   if (isnan(a)) {
-    Serial.println("Failed to read from A0 sensor!");
+    logInfo("Failed to read from A0 sensor!");
     return 0;
   } else {
     Serial.print("sensor A0 = ");
@@ -160,7 +161,7 @@ void toggleRelay2() {
 
 void saveRelayState() {
   //save to file
-  Serial.println("saving relay state");
+  logInfo("saving relay state");
   std::string rdata = "[" + time_tToString(dateTime) + "," + std::to_string(relayIsOn) + "],";
   // to do add relay 2
   appendFile(LittleFS, dataFile1.c_str(), rdata.c_str());
@@ -216,27 +217,27 @@ void setupLittleFS() {
 
   // Initialize LittleFS
   if (!LittleFS.begin()) {
-    Serial.println("LittleFS Mount Failed, trying to format..");
+    logInfo("LittleFS Mount Failed, trying to format..");
     if (!LittleFS.format()) {
-      Serial.println("LittleFS Mount Failed");
+      logInfo("LittleFS Mount Failed");
       return;
     }
 
   } else {
-    Serial.println("Little FS Mounted Successfully");
+    logInfo("Little FS Mounted Successfully");
   }
   if (!LittleFS.exists(dataFile0)) {
-    Serial.println("File" + dataFile0 + "not found - creating it");
+    logInfo("File" + dataFile0 + "not found - creating it");
     writeFile(LittleFS, dataFile0.c_str(), "");
   } else {
-    Serial.println("Found file" + dataFile0);
+    logInfo("Found file" + dataFile0);
   }
 
   if (!LittleFS.exists(dataFile1)) {
-    Serial.println("File" + dataFile1 + "not found - creating it");
+    logInfo("File" + dataFile1 + "not found - creating it");
     writeFile(LittleFS, dataFile1.c_str(), "");
   } else {
-    Serial.println("Found file" + dataFile1);
+    logInfo("Found file" + dataFile1);
   }
 
   listAllFilesInDir("/");
@@ -249,17 +250,17 @@ const char* PARAM_MESSAGE = "message";
 void setupWebServer() {
   // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest* request) {
-    Serial.println("sending html..");
+    logInfo("sending html..");
     request->send(LittleFS, "/index.html");
   });
 
   server.on("/plugin/json-ui.jquery.js", HTTP_GET, [](AsyncWebServerRequest* request) {
-    Serial.println("sending html..");
+    logInfo("sending html..");
     request->send(LittleFS, "/plugin/json-ui.jquery.js");
   });
 
   server.on("/plugin/json-ui.css", HTTP_GET, [](AsyncWebServerRequest* request) {
-    Serial.println("sending html..");
+    logInfo("sending html..");
     request->send(LittleFS, "/plugin/json-ui.css");
   });
 
@@ -271,11 +272,11 @@ void setupWebServer() {
     request->send(200, "text/plain", readStatusData().c_str());
   });
   server.on("/CLEAR_VOLT_HISTORY", HTTP_GET, [](AsyncWebServerRequest* request) {
-    Serial.println("clearing voltage data...");
+    logInfo("clearing voltage data...");
     request->send(200, "text/plain", clearVoltageHistory());
   });
   server.on("/CLEAR_RELAY_STATE_HISTORY", HTTP_GET, [](AsyncWebServerRequest* request) {
-    Serial.println("clearing relay statedata...");
+    logInfo("clearing relay statedata...");
     clearRelayStateHistory();
     request->send(200, "text/plain", clearRelayStateHistory());
   });
@@ -302,7 +303,7 @@ void setupWebServer() {
     //request->send_P(200, "text/plain", data.c_str());
     request->send(200, "text/plain", data.c_str());
 
-    Serial.println("get voltage returned " + data);
+    logInfo("get voltage returned " + data);
   });
 
   server.on("/GET_CONFIG", HTTP_GET, [](AsyncWebServerRequest* request) {
@@ -314,7 +315,7 @@ void setupWebServer() {
   });
 
   server.addHandler(new AsyncCallbackJsonWebHandler("/SAVE_CONFIG", [](AsyncWebServerRequest* request, JsonVariant& json) {
-    Serial.println("received save config request");
+    logInfo("received save config request");
     if (json.is<JsonObject>()) {
       JsonObject obj = json.as<JsonObject>();
       c.update(obj);
@@ -384,7 +385,7 @@ void setup() {
 
   */
 
-    Serial.println("!!!!!!!");
+    logInfo("!!!!!!!");
   setupLittleFS();
   //LittleFS.format();
   setupWebServer();
@@ -395,23 +396,23 @@ void setup() {
   while ((_now == 0) && (count < 5)) {
     delay(1000);
     count++;
-    Serial.println("retrying getTime...");
+    logInfo("retrying getTime...");
     _now = getTime();
   }
 
-  Serial.println("hello from PumpController");
+  logInfo("hello from PumpController");
 
   c = Config();
-  Serial.println("loading config");
+  logInfo("loading config");
   c.load();
-  Serial.println(c.toJson().c_str());
+  logInfo(c.toJson().c_str());
 }
 
 
 void loop() {
   ElegantOTA.loop();
-  Serial.println("loop");
-  WebSerial.println("Hello!");
+  
+  logInfo("loop start");
 
   digitalWrite(LED_BUILTIN, HIGH);
 
@@ -424,10 +425,10 @@ void loop() {
   if (_now > 0) {
     dateTime = _now;
   } else {
-    Serial.println("estimating date time");
+    logInfo("estimating date time");
     dateTime += c.interval;
   }
-  Serial.println("date time = " + String(dateTime));
+  logInfo("date time = " + String(dateTime));
   // read the data
   vin = A0toV(readA0Avg(c.numSamples));
 
@@ -437,7 +438,7 @@ void loop() {
 
   Serial.println(WiFi.localIP());
 
-  Serial.println("seconds elapsed = " + String(secondsElapsed) + ", secondsOn=" + String(secondsOn) + ", maxSecondsOnPerDay =" + String(c.maxSecondsOnPerDay) + ",  vin = " + String(vin, 2));
+  logInfo("seconds elapsed = " + String(secondsElapsed) + ", secondsOn=" + String(secondsOn) + ", maxSecondsOnPerDay =" + String(c.maxSecondsOnPerDay) + ",  vin = " + String(vin, 2));
 
   secondsElapsed += c.interval;
   if (secondsElapsed > secondsInDay) {
@@ -449,12 +450,12 @@ void loop() {
   }
 
   if ((secondsElapsed < c.maxSecondsOnPerDay) and (relayIsOn == false) and (vin > c.vOn)) {
-    Serial.println("turning relay on");
+    logInfo("turning relay on");
     relayOn();
   }
 
   if (relayIsOn and ((vin < c.vOff) or (secondsOn > c.maxSecondsOnPerDay))) {
-    Serial.println("turning relay off");
+    logInfo("turning relay off");
 
     relayOff();
   }
