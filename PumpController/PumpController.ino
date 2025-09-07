@@ -34,6 +34,7 @@
 #include "Config.h"
 #include <AsyncJson.h>
 #include <ElegantOTA.h>
+#include <WebSerial.h>
 
 
 const int secondsInDay = 3600 * 24;
@@ -66,6 +67,12 @@ String dataFile0 = "/voltageHistory.txt";
 String dataFile1 = "/stateHistory.txt";
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
+
+
+void recvMsg(uint8_t *data, size_t len){
+  WebSerial.println("Received Data...");
+ 
+}
 
 
 /*
@@ -322,6 +329,8 @@ void setupWebServer() {
 
   // Start server
   ElegantOTA.begin(&server);
+  WebSerial.begin(&server);
+  WebSerial.onMessage(recvMsg);
   server.begin();
 }
 
@@ -402,6 +411,7 @@ void setup() {
 void loop() {
   ElegantOTA.loop();
   Serial.println("loop");
+  WebSerial.println("Hello!");
 
   digitalWrite(LED_BUILTIN, HIGH);
 
