@@ -33,6 +33,7 @@
 #include "./wifiutils.h"
 #include "Config.h"
 #include <AsyncJson.h>
+#include <ElegantOTA.h>
 
 
 const int secondsInDay = 3600 * 24;
@@ -320,6 +321,7 @@ void setupWebServer() {
 
 
   // Start server
+  ElegantOTA.begin(&server);
   server.begin();
 }
 
@@ -360,6 +362,9 @@ void setup() {
   pinMode(AC_LED, OUTPUT);
   //relayOff();
   getACStatus();
+
+  setupWiFi();
+  /*
   setupLCD();
   lcdDisplayStatus("Pump Controller", "Connecting to wifi....");
   if (setupWiFi()) {
@@ -367,6 +372,10 @@ void setup() {
   } else {
     lcdDisplayStatus("wifi connection failed", "");
   }
+
+  */
+
+    Serial.println("!!!!!!!");
   setupLittleFS();
   //LittleFS.format();
   setupWebServer();
@@ -391,7 +400,7 @@ void setup() {
 
 
 void loop() {
-
+  ElegantOTA.loop();
   Serial.println("loop");
 
   digitalWrite(LED_BUILTIN, HIGH);
@@ -440,5 +449,5 @@ void loop() {
     relayOff();
   }
 
-  displayStatus();
+  //displayStatus();
 }
