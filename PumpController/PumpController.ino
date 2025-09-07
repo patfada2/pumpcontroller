@@ -373,19 +373,17 @@ void setup() {
   //relayOff();
   getACStatus();
 
-  setupWiFi();
-  /*
+
+  boolean wifiOK = setupWiFi();
+  
   setupLCD();
   lcdDisplayStatus("Pump Controller", "Connecting to wifi....");
-  if (setupWiFi()) {
+  if (wifiOK) {
     lcdDisplayStatus("wi fi connected", "ip=" + WiFi.localIP().toString());
   } else {
     lcdDisplayStatus("wifi connection failed", "");
   }
 
-  */
-
-    logInfo("!!!!!!!");
   setupLittleFS();
   //LittleFS.format();
   setupWebServer();
