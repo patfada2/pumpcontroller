@@ -4,6 +4,7 @@
 #include <LiquidCrystal_I2C.h>
 #include "common.h"
 
+
 // set the LCD number of columns and rows
 int lcdColumns = 16;
 int lcdRows = 2;

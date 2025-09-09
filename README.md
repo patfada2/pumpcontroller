@@ -23,5 +23,11 @@ show ac status on UI
 
 show relay2 status on UI
 
+add menu item to go to /webserial
+
+add menu item to go to /webupdates
+
+
+
 
 

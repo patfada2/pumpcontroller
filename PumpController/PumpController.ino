@@ -37,6 +37,18 @@
 #include <WebSerial.h>
 #include "common.h"
 
+#include <NTPClient.h>
+#include <WiFiUdp.h>
+
+// Define NTP Client to get time
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP);
+
+// Variables to save date and time
+String formattedDate;
+String dayStamp;
+String timeStamp;
+
 
 const int secondsInDay = 3600 * 24;
 
@@ -51,9 +63,7 @@ time_t _now = 0;
 boolean relayIsOn;
 boolean relay2IsOn;
 //29 June 2024
-time_t dateTime = 1719685735000;  //29 June 2024
-
-std::string data;
+long dateTime = 1719685735;  //29 June 2024
 
 //I think lcd needs d2
 const int relay1Pin = D6;  //!! check board wiring
@@ -162,7 +172,7 @@ void toggleRelay2() {
 void saveRelayState() {
   //save to file
   logInfo("saving relay state");
-  std::string rdata = "[" + time_tToString(dateTime) + "," + std::to_string(relayIsOn) + "],";
+  String rdata = "[" + epochToStringms(dateTime) + "," + String(relayIsOn) + "],";
   // to do add relay 2
   appendFile(LittleFS, dataFile1.c_str(), rdata.c_str());
 }
@@ -291,18 +301,14 @@ void setupWebServer() {
   });
 
   server.on("/GET_RELAY_STATE", HTTP_GET, [](AsyncWebServerRequest* request) {
-    String data = "{\"x\":" + String(dateTime) + ",\"y\":" + String(relayIsOn) + ",\"state\":" + "\"" + booleanToOnOff(relayIsOn) + "\"}";
+    String data = "{\"x\":" + epochToStringms(dateTime) + ",\"y\":" + String(relayIsOn) + ",\"state\":" + "\"" + booleanToOnOff(relayIsOn) + "\"}";
     request->send(200, "text/plain", data.c_str());
   });
 
   server.on("/GET_VOLTAGE", [](AsyncWebServerRequest* request) {
-    //std::string data = "{\"x\":" + time_tToString(dateTime) + ",\"y\":" + std::to_string(vin) + "}";
-    //request->send_P(200, "text/plain", data.c_str());
-    String data = "{\"x\":" + String(dateTime) + ",\"y\":" + String(vin) + "}";
-    //+ time_tToString(dateTime) + ",\"y\":"  + "vv" + "}";
-    //request->send_P(200, "text/plain", data.c_str());
+   
+    String data = "{\"x\":" + epochToStringms(dateTime) + ",\"y\":" + String(vin) + "}";
     request->send(200, "text/plain", data.c_str());
-
     logInfo("get voltage returned " + data);
   });
 
@@ -388,7 +394,7 @@ void setup() {
   //LittleFS.format();
   setupWebServer();
 
-
+/*
   _now = getTime();
   int count = 0;
   while ((_now == 0) && (count < 5)) {
@@ -397,6 +403,7 @@ void setup() {
     logInfo("retrying getTime...");
     _now = getTime();
   }
+*/
 
   logInfo("hello from PumpController");
 
@@ -404,34 +411,46 @@ void setup() {
   logInfo("loading config");
   c.load();
   logInfo(c.toJson().c_str());
+
+  // Initialize a NTPClient to get time
+  timeClient.begin();
+  // Set offset time in seconds to adjust for your timezone, for example:
+  // GMT +1 = 3600
+  // GMT +8 = 28800
+  // GMT -1 = -3600
+  // GMT 0 = 0
+  timeClient.setTimeOffset(43200);
 }
 
-
+int timeClientRetryCount = 0;
 void loop() {
   ElegantOTA.loop();
   
   logInfo("loop start");
 
+  timeClientRetryCount = 0;
+  while(!timeClient.update()  && (timeClientRetryCount<10)) {
+    logInfo(".");
+    timeClient.forceUpdate();
+    timeClientRetryCount++;
+
+  }
+  logInfo("time=" +timeClient.getFormattedDate() );
+
+
   digitalWrite(LED_BUILTIN, HIGH);
 
   delay(c.interval * 1000);
 
-  // get the time
-
-  _now = getTime();
-
-  if (_now > 0) {
-    dateTime = _now;
-  } else {
-    logInfo("estimating date time");
-    dateTime += c.interval;
-  }
-  logInfo("date time = " + String(dateTime));
+  // get the time (convert to ms for chart)
+   dateTime = timeClient.getEpochTime();
+ 
+  logInfo("date time (ms since Jan1 1970)= " + epochToStringms(dateTime));
   // read the data
   vin = A0toV(readA0Avg(c.numSamples));
 
   //save to file
-  data = "[" + time_tToString(dateTime) + "," + std::to_string(vin) + "],";
+  String data = "[" + epochToStringms(dateTime) + "," + String(vin) + "],";
   appendFile(LittleFS, dataFile0.c_str(), data.c_str());
 
   Serial.println(WiFi.localIP());
@@ -458,5 +477,5 @@ void loop() {
     relayOff();
   }
 
-  //displayStatus();
+  displayStatus();
 }

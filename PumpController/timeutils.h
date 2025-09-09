@@ -13,6 +13,7 @@
 
 
 std::string time_tToString(time_t t);
+String  epochToStringms(long epoch);
 time_t timeStrToEpoch(std::string timeString);
 time_t getTime();
 
