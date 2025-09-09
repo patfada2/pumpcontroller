@@ -69,7 +69,12 @@
 				</div>
 
 				<div class="row mb-3">
-					<label for="relay1" class="col-sm-2 col-form-label col-form-label-sm">Relay 1</label>
+						<label for="relay1" class="col-sm-2 col-form-label col-form-label-sm">AC Power In</label>
+						<div class="col-sm-10"><input type="text" class="form-control form-control-sm" name="ac_state" placeholder="on/off"></div>				
+				</div>
+								
+				<div class="row mb-3">
+					<label for="AC" class="col-sm-2 col-form-label col-form-label-sm">Power to Pump</label>
 					<div class="col-sm-10"><input type="text" class="form-control form-control-sm" name="relay_state" placeholder="on/off"></div>				
 				</div>
 
@@ -453,7 +458,8 @@
 				const json = xhttp.responseText;
 				const obj = JSON.parse(json);
 				chartT.series[1].addPoint(obj.y, obj.x);
-				document.getElementsByName("relay_state")[0].placeholder= obj.state;					
+				document.getElementsByName("relay_state")[0].placeholder= obj.state;	
+				document.getElementsByName("ac_state")[0].placeholder= obj.AC;					
 			}
 		};
 		xhttp.open("GET", "/GET_RELAY_STATE", true);

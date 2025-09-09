@@ -13,11 +13,20 @@ http://192.168.1.99/updates
 
 compile bin file from arduino from sketch>export menu
 
+see https://randomnerdtutorials.com/esp32-ota-elegantota-arduino/
+
+##NTP
+time comes from an NTP server- requires connection to internet
+ see https://randomnerdtutorials.com/esp32-ntp-client-date-time-arduino-ide/
+ note it uses  fork of NTPClient installed from zip
+
 
 ## to do
 enable lcd from config
 
-use NTP for time - see https://randomnerdtutorials.com/esp32-ntp-client-date-time-arduino-ide/
+switch to main NTPClient lib
+
+graceful degredation if internet not available (NTP fails)
 
 show ac status on UI
 

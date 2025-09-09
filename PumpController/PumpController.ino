@@ -301,7 +301,9 @@ void setupWebServer() {
   });
 
   server.on("/GET_RELAY_STATE", HTTP_GET, [](AsyncWebServerRequest* request) {
-    String data = "{\"x\":" + epochToStringms(dateTime) + ",\"y\":" + String(relayIsOn) + ",\"state\":" + "\"" + booleanToOnOff(relayIsOn) + "\"}";
+    String data = "{\"x\":" + epochToStringms(dateTime) + ",\"y\":" + String(relayIsOn) + 
+    ",\"state\":\"" + booleanToOnOff(relayIsOn) + "\"" +
+     ",\"AC\":\"" + booleanToOnOff(getACStatus()) + "\"}";
     request->send(200, "text/plain", data.c_str());
   });
 
