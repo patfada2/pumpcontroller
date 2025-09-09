@@ -15,6 +15,10 @@ compile bin file from arduino from sketch>export menu
 
 see https://randomnerdtutorials.com/esp32-ota-elegantota-arduino/
 
+I cant get the OTA upload to the webfiles working - canr make a valid littlefs bin. Haves installed mklittlefs.
+No joy - may need to fix the block size etc?
+
+
 ##NTP
 time comes from an NTP server- requires connection to internet
  see https://randomnerdtutorials.com/esp32-ntp-client-date-time-arduino-ide/

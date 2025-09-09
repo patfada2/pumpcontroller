@@ -302,7 +302,7 @@ void setupWebServer() {
 
   server.on("/GET_RELAY_STATE", HTTP_GET, [](AsyncWebServerRequest* request) {
     String data = "{\"x\":" + epochToStringms(dateTime) + ",\"y\":" + String(relayIsOn) + 
-    ",\"state\":\"" + booleanToOnOff(relayIsOn) + "\"" +
+    ",\"state\":\"" + booleanToOnOff(relay2IsOn) + "\"" +
      ",\"AC\":\"" + booleanToOnOff(getACStatus()) + "\"}";
     request->send(200, "text/plain", data.c_str());
   });
@@ -396,17 +396,6 @@ void setup() {
   //LittleFS.format();
   setupWebServer();
 
-/*
-  _now = getTime();
-  int count = 0;
-  while ((_now == 0) && (count < 5)) {
-    delay(1000);
-    count++;
-    logInfo("retrying getTime...");
-    _now = getTime();
-  }
-*/
-
   logInfo("hello from PumpController");
 
   c = Config();
@@ -416,11 +405,6 @@ void setup() {
 
   // Initialize a NTPClient to get time
   timeClient.begin();
-  // Set offset time in seconds to adjust for your timezone, for example:
-  // GMT +1 = 3600
-  // GMT +8 = 28800
-  // GMT -1 = -3600
-  // GMT 0 = 0
   timeClient.setTimeOffset(43200);
 }
 
@@ -464,17 +448,17 @@ void loop() {
     secondsElapsed = 0;
   }
 
-  if (relayIsOn) {
+  if (relay2IsOn) {
     secondsOn += c.interval;
   }
 
-  if ((secondsElapsed < c.maxSecondsOnPerDay) and (relayIsOn == false) and (vin > c.vOn)) {
-    logInfo("turning relay on");
+  if ((secondsElapsed < c.maxSecondsOnPerDay) and (relay2IsOn == false) and (vin > c.vOn)) {
+    logInfo("turning pump on");
     relayOn();
   }
 
-  if (relayIsOn and ((vin < c.vOff) or (secondsOn > c.maxSecondsOnPerDay))) {
-    logInfo("turning relay off");
+  if (relay2IsOn and ((vin < c.vOff) or (secondsOn > c.maxSecondsOnPerDay))) {
+    logInfo("turning pump off");
 
     relayOff();
   }
