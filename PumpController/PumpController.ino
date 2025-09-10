@@ -80,9 +80,8 @@ String dataFile1 = "/stateHistory.txt";
 AsyncWebServer server(80);
 
 
-void recvMsg(uint8_t *data, size_t len){
+void recvMsg(uint8_t* data, size_t len) {
   WebSerial.println("Received Data...");
- 
 }
 
 
@@ -126,7 +125,7 @@ double readA0Avg(int count) {
 
 void relayOn() {
   digitalWrite(relay1Pin, LOW);
- // digitalWrite(relay1_LED, HIGH);
+  // digitalWrite(relay1_LED, HIGH);
   relayIsOn = true;
   saveRelayState();
 }
@@ -180,10 +179,10 @@ void saveRelayState() {
 boolean getACStatus() {
   //  ac coupler returns high when AC detected, lo when not
   boolean status = !digitalRead(AC_DETECT);
-  if (status) { 
-    digitalWrite(AC_LED,HIGH);
-  }else {
-    digitalWrite(AC_LED,LOW);
+  if (status) {
+    digitalWrite(AC_LED, HIGH);
+  } else {
+    digitalWrite(AC_LED, LOW);
   }
   return status;
 }
@@ -301,14 +300,11 @@ void setupWebServer() {
   });
 
   server.on("/GET_RELAY_STATE", HTTP_GET, [](AsyncWebServerRequest* request) {
-    String data = "{\"x\":" + epochToStringms(dateTime) + ",\"y\":" + String(relayIsOn) + 
-    ",\"state\":\"" + booleanToOnOff(relay2IsOn) + "\"" +
-     ",\"AC\":\"" + booleanToOnOff(getACStatus()) + "\"}";
+    String data = "{\"x\":" + epochToStringms(dateTime) + ",\"y\":" + String(relayIsOn) + ",\"state\":\"" + booleanToOnOff(relay2IsOn) + "\"" + ",\"AC\":\"" + booleanToOnOff(getACStatus()) + "\"}";
     request->send(200, "text/plain", data.c_str());
   });
 
   server.on("/GET_VOLTAGE", [](AsyncWebServerRequest* request) {
-   
     String data = "{\"x\":" + epochToStringms(dateTime) + ",\"y\":" + String(vin) + "}";
     request->send(200, "text/plain", data.c_str());
     logInfo("get voltage returned " + data);
@@ -374,7 +370,7 @@ void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
   //d1 = gpo5
   pinMode(relay1Pin, OUTPUT);
-   pinMode(relay2_LED, OUTPUT);
+  pinMode(relay2_LED, OUTPUT);
   pinMode(relay2Pin, OUTPUT);
   pinMode(AC_DETECT, INPUT);
   pinMode(AC_LED, OUTPUT);
@@ -383,7 +379,7 @@ void setup() {
 
 
   boolean wifiOK = setupWiFi();
-  
+
   setupLCD();
   lcdDisplayStatus("Pump Controller", "Connecting to wifi....");
   if (wifiOK) {
@@ -411,17 +407,16 @@ void setup() {
 int timeClientRetryCount = 0;
 void loop() {
   ElegantOTA.loop();
-  
+
   logInfo("loop start");
 
   timeClientRetryCount = 0;
-  while(!timeClient.update()  && (timeClientRetryCount<10)) {
+  while (!timeClient.update() && (timeClientRetryCount < 10)) {
     logInfo(".");
     timeClient.forceUpdate();
     timeClientRetryCount++;
-
   }
-  logInfo("time=" +timeClient.getFormattedDate() );
+  logInfo("time=" + timeClient.getFormattedDate());
 
 
   digitalWrite(LED_BUILTIN, HIGH);
@@ -429,8 +424,8 @@ void loop() {
   delay(c.interval * 1000);
 
   // get the time (convert to ms for chart)
-   dateTime = timeClient.getEpochTime();
- 
+  dateTime = timeClient.getEpochTime();
+
   logInfo("date time (ms since Jan1 1970)= " + epochToStringms(dateTime));
   // read the data
   vin = A0toV(readA0Avg(c.numSamples));
@@ -448,19 +443,21 @@ void loop() {
     secondsElapsed = 0;
   }
 
-  if (relay2IsOn) {
-    secondsOn += c.interval;
-  }
+  if (!c.isManual) {
+    if (relay2IsOn) {
+      secondsOn += c.interval;
+    }
 
-  if ((secondsElapsed < c.maxSecondsOnPerDay) and (relay2IsOn == false) and (vin > c.vOn)) {
-    logInfo("turning pump on");
-    relayOn();
-  }
+    if ((secondsElapsed < c.maxSecondsOnPerDay) and (relay2IsOn == false) and (vin > c.vOn)) {
+      logInfo("turning pump on");
+      relayOn();
+    }
 
-  if (relay2IsOn and ((vin < c.vOff) or (secondsOn > c.maxSecondsOnPerDay))) {
-    logInfo("turning pump off");
+    if (relay2IsOn and ((vin < c.vOff) or (secondsOn > c.maxSecondsOnPerDay))) {
+      logInfo("turning pump off");
 
-    relayOff();
+      relayOff();
+    }
   }
 
   displayStatus();

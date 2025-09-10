@@ -28,6 +28,7 @@ void Config::update(JsonObject config) {
 	maxSecondsOnPerDay = config["maxSecondsOnPerDay"].as<int>();
 	vcal = config["vcal"].as<double>();
 	numSamples = config["numSamples"].as<int>();
+	isManual =  config["isManual"].as<int>();
 }
 
 
@@ -44,6 +45,7 @@ void Config::load() {
 		maxSecondsOnPerDay = doc["maxSecondsOnPerDay"];
 		vcal = doc["vcal"];
 		numSamples = doc["numSamples"];
+		isManual = doc["isManual"];
 
 		Serial.println("updated config to + toJson()");
 	}
