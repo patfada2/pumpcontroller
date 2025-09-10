@@ -409,6 +409,7 @@ void setup() {
 }
 
 int timeClientRetryCount = 0;
+boolean ACisOn;
 void loop() {
   ElegantOTA.loop();
   
@@ -452,16 +453,32 @@ void loop() {
     secondsOn += c.interval;
   }
 
-  if ((secondsElapsed < c.maxSecondsOnPerDay) and (relay2IsOn == false) and (vin > c.vOn)) {
+  ACisOn = getACStatus();
+
+  if (relay2IsOn and (secondsOn > c.maxSecondsOnPerDay)) {
+    if logInfo("turning pump off because time is up);
+
+    relayOff();
+  }
+
+  if (relay2IsOn and ((vin < c.vOff) ) {
+    if logInfo("turning pump off because battery volsyg is too low");
+
+    relayOff();
+  }
+
+  if (relay2IsOn  and !ACisOn() {
+     logInfo("turning pump relay off becasuse AC is Off");
+    relayOff();
+
+  }
+
+  if ((secondsElapsed < c.maxSecondsOnPerDay) and (relay2IsOn == false) and (vin > c.vOn) and ACisOn) {
     logInfo("turning pump on");
     relayOn();
   }
 
-  if (relay2IsOn and ((vin < c.vOff) or (secondsOn > c.maxSecondsOnPerDay))) {
-    logInfo("turning pump off");
-
-    relayOff();
-  }
+  
 
   displayStatus();
 }
