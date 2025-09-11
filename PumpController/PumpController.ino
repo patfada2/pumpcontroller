@@ -66,16 +66,16 @@ boolean relay2IsOn;
 long dateTime = 1719685735;  //29 June 2024
 
 //I think lcd needs d2
-const int relay1Pin = D6;  //!! check board wiring
-const int relay2Pin = D5;  //d??
+const int relay1Pin = D6;  //
+const int relay2Pin = D5;  //controls the AC relay
 const int AC_DETECT = D7;  //need to assign a digital inpu to this
 const int AC_LED = D3;
 const int relay2_LED = D8;
 // Replace with your network credentials
 
 const int analogInPin = A0;  // ESP8266 Analog Pin ADC0 = A0
-String dataFile0 = "/voltageHistory.txt";
-String dataFile1 = "/stateHistory.txt";
+String vinDataFile = "/voltageHistory.txt";
+String relay2DataFile = "/stateHistory.txt";
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
 
@@ -127,14 +127,12 @@ void relayOn() {
   digitalWrite(relay1Pin, LOW);
   // digitalWrite(relay1_LED, HIGH);
   relayIsOn = true;
-  saveRelayState();
 }
 
 void relayOff() {
   digitalWrite(relay1Pin, HIGH);
   //digitalWrite(relay1_LED, LOW);
   relayIsOn = false;
-  saveRelayState();
 }
 
 
@@ -142,38 +140,42 @@ void relay2On() {
   digitalWrite(relay2Pin, LOW);
   digitalWrite(relay2_LED, HIGH);
   relay2IsOn = true;
-  saveRelayState();
+  saveRelay2State();
 }
 
 void relay2Off() {
   digitalWrite(relay2Pin, HIGH);
   digitalWrite(relay2_LED, LOW);
   relay2IsOn = false;
-  saveRelayState();
+  saveRelay2State();
 }
 
 void toggleRelay() {
-  saveRelayState();
+ 
   if (relayIsOn) {
     relayOff();
   } else relayOn();
-  displayStatus();
+
+
+  
 }
 
 void toggleRelay2() {
-  saveRelayState();
+  
   if (relay2IsOn) {
     relay2Off();
   } else relay2On();
+  
+ 
   displayStatus();
 }
 
-void saveRelayState() {
+void saveRelay2State() {
   //save to file
   logInfo("saving relay state");
-  String rdata = "[" + epochToStringms(dateTime) + "," + String(relayIsOn) + "],";
+  String rdata = "[" + epochToStringms(dateTime) + "," + String(relay2IsOn) + "],";
   // to do add relay 2
-  appendFile(LittleFS, dataFile1.c_str(), rdata.c_str());
+  appendFile(LittleFS, relay2DataFile.c_str(), rdata.c_str());
 }
 
 boolean getACStatus() {
@@ -200,25 +202,25 @@ String booleanToOnOff(boolean flag) {
 }
 
 String readVoltageData() {
-  return readDataFile(dataFile0);
+  return readDataFile(vinDataFile);
 }
 
 String readStatusData() {
-  return readDataFile(dataFile1);
+  return readDataFile(relay2DataFile);
 }
 
 String clearVoltageHistory() {
   //delete and recreate the file
-  LittleFS.remove(dataFile0.c_str());
-  writeFile(LittleFS, dataFile0.c_str(), "");
+  LittleFS.remove(vinDataFile.c_str());
+  writeFile(LittleFS, vinDataFile.c_str(), "");
   return "voltage history cleared";
 }
 
 
 String clearRelayStateHistory() {
   //delete and recreate the file
-  LittleFS.remove(dataFile0.c_str());
-  writeFile(LittleFS, dataFile1.c_str(), "");
+  LittleFS.remove(relay2DataFile.c_str());
+  writeFile(LittleFS, relay2DataFile.c_str(), "");
   return "state history cleared";
 }
 
@@ -235,18 +237,18 @@ void setupLittleFS() {
   } else {
     logInfo("Little FS Mounted Successfully");
   }
-  if (!LittleFS.exists(dataFile0)) {
-    logInfo("File" + dataFile0 + "not found - creating it");
-    writeFile(LittleFS, dataFile0.c_str(), "");
+  if (!LittleFS.exists(vinDataFile)) {
+    logInfo("File" + vinDataFile + "not found - creating it");
+    writeFile(LittleFS, vinDataFile.c_str(), "");
   } else {
-    logInfo("Found file" + dataFile0);
+    logInfo("Found file" + vinDataFile);
   }
 
-  if (!LittleFS.exists(dataFile1)) {
-    logInfo("File" + dataFile1 + "not found - creating it");
-    writeFile(LittleFS, dataFile1.c_str(), "");
+  if (!LittleFS.exists(relay2DataFile)) {
+    logInfo("File" + relay2DataFile + "not found - creating it");
+    writeFile(LittleFS, relay2DataFile.c_str(), "");
   } else {
-    logInfo("Found file" + dataFile1);
+    logInfo("Found file" + relay2DataFile);
   }
 
   listAllFilesInDir("/");
@@ -302,6 +304,7 @@ void setupWebServer() {
   server.on("/GET_RELAY_STATE", HTTP_GET, [](AsyncWebServerRequest* request) {
     String data = "{\"x\":" + epochToStringms(dateTime) + ",\"y\":" + String(relayIsOn) + ",\"state\":\"" + booleanToOnOff(relay2IsOn) + "\"" + ",\"AC\":\"" + booleanToOnOff(getACStatus()) + "\"}";
     request->send(200, "text/plain", data.c_str());
+    saveRelay2State();
   });
 
   server.on("/GET_VOLTAGE", [](AsyncWebServerRequest* request) {
@@ -436,7 +439,7 @@ void loop() {
 
   //save to file
   String data = "[" + epochToStringms(dateTime) + "," + String(vin) + "],";
-  appendFile(LittleFS, dataFile0.c_str(), data.c_str());
+  appendFile(LittleFS, vinDataFile.c_str(), data.c_str());
 
   Serial.println(WiFi.localIP());
 

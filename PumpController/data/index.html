@@ -478,7 +478,8 @@
 				
 				const json = xhttp.responseText;
 				const obj = JSON.parse(json);
-				chartT.series[1].addPoint(obj.y, obj.x);
+				//chartT.series[1].addPoint(obj.y, obj.x);
+				chartT.series[1].addPoint(obj.x, obj.y);
 				document.getElementsByName("relay_state")[0].placeholder= obj.state;	
 				document.getElementsByName("ac_state")[0].placeholder= obj.AC;					
 			}
