@@ -57,6 +57,7 @@
 				<div class="row mb-3  border border-primary pt-3""><div id="chart-status" class="container"></div></div>
 			</div>
 			<div class="col-sm-3  border border-primary" id="right">
+				<div class="row mb-3"></div>
 
 				<div class="row mb-3">
 					<label for="volts" class="col-sm-6 col-form-label col-form-label-sm">Volts</label>
@@ -415,7 +416,7 @@
 			title: {
 				text: 'Relay Off/On'
 			},
-			min: -1,
+			min: 0,
 			max: 1
 		}],
 		credits: {enabled: false}
@@ -684,6 +685,7 @@ toggle between hiding and showing the dropdown content */
 		}
 	}
 	window.onload = function () {
+		getHistory();
 		getConfig();
 		getData();
 		
