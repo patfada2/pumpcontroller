@@ -282,7 +282,7 @@
 		},
 		series: [{
 			name: 'volts',
-			showInLegend: true,			
+			showInLegend: false,			
 			data: [],
 			dataLabels: {
 				enabled: true,
@@ -294,11 +294,11 @@
 		},
 		{
 			name: 'relay_state',
-			showInLegend: true,
+			showInLegend: false,
 			data: [],	
 			dataLabels: {
 				enabled: true,
-				// doesnt work format: '{y:.2d}' 
+			    format: '{y:.2d}' 
 			},
 			yaxis: 1,
 			color: Highcharts.getOptions().colors[2],
