@@ -22,6 +22,7 @@ public:
 	void load();
 	String toJson();
 	void update(JsonObject config);
+	String modeToString();
 	
 private:
 	

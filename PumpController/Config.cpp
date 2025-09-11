@@ -28,7 +28,7 @@ void Config::update(JsonObject config) {
 	maxSecondsOnPerDay = config["maxSecondsOnPerDay"].as<int>();
 	vcal = config["vcal"].as<double>();
 	numSamples = config["numSamples"].as<int>();
-	isManual =  config["isManual"].as<int>();
+	isManual = config["isManual"].as<int>();
 }
 
 
@@ -51,6 +51,11 @@ void Config::load() {
 	}
 }
 
+String Config::modeToString() {
+	if (isManual)
+		return "on";
+	else return "off";
+}
 
 String Config::toJson() {
 	StaticJsonDocument<512> doc;

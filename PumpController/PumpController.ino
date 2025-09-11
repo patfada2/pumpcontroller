@@ -351,7 +351,7 @@ void displayStatus() {
 
 
 
-  String msg1 = String(secondsOn) + "/" + String(c.maxSecondsOnPerDay) + " AC=" + ACStatus +"manual mode="+ String(c.isManual);
+  String msg1 = String(secondsOn) + "/" + String(c.maxSecondsOnPerDay) + " AC=" + ACStatus +" manual mode="+ c.modeToString();
   String msg2;
 
   if (relayIsOn) {
