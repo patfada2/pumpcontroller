@@ -88,6 +88,11 @@
 					<label for="timeLeft" class="col-sm-2 col-form-label col-form-label-sm">Time elapsed</label>
 					<div class="col-sm-10"><input type="text" class="form-control form-control-sm" name="timeLeft" placeholder="ttt"></div>
 				</div>
+				
+				<div class="row mb-3">
+					<label for="manualMode" class="col-sm-2 col-form-label col-form-label-sm">Manual mode</label>
+					<div class="col-sm-10"><input type="text" class="form-control form-control-sm" name="manualMode" placeholder="ttt"></div>
+				</div>
 
 				
 
@@ -347,6 +352,7 @@
 		readVoltage();
 		readRelayState();
 		getElapsed();
+		getManualMode();
 	}
 
 
@@ -447,6 +453,13 @@
 		xhttp.open("GET", "/GET_ELAPSED", true);
 		xhttp.send();
 	};
+	
+	function getManualMode() {
+		if (pcConfig.isManual) 
+			document.getElementsByName("manualMode")[0].placeholder="on";		
+		else
+					document.getElementsByName("manualMode")[0].placeholder="off";		
+	}
 
 	function getHistory() {
 		getStateHistory();
