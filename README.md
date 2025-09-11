@@ -26,19 +26,15 @@ time comes from an NTP server- requires connection to internet
 
 
 ## to do
+
+enable manual mode from UI
+
 enable lcd from config
 
 switch to main NTPClient lib
 
 graceful degredation if internet not available (NTP fails)
 
-show ac status on UI
-
-show relay2 status on UI
-
-add menu item to go to /webserial
-
-add menu item to go to /webupdates
 
 
 

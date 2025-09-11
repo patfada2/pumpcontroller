@@ -136,7 +136,7 @@
 		</div>
 	</div>
 	<div class="form-group row">
-		<label for="maxSecondsOnPerDay" class="col-sm-4 col-form-label mr-2">Max Seconds On Per Day</label>
+		<label for="maxSecondsOnPerDay" class="col-sm-4 col-form-label mr-2">Max seconds on per day</label>
 		<div class="col-sm-8">
 			<input type="number" class="form-control" id="maxSecondsOnPerDay" name="maxSecondsOnPerDay"  placeholder="x">
 		</div>
@@ -148,9 +148,15 @@
 		</div>
 	</div>
     <div class="form-group row">
-		<label for="numSamples" class="col-sm-4 col-form-label mr-2">Number of Samples</label>
+		<label for="numSamples" class="col-sm-4 col-form-label mr-2">Number of samples</label>
 		<div class="col-sm-8">
 			<input type="number" class="form-control" id="numSamples" name="numSamples"  placeholder="x">
+		</div>
+	</div>
+	<div class="form-group row">
+		<label for="manual" class="col-sm-4 col-form-label mr-2">Manual mode</label>
+		<div class="col-sm-8">
+			<input type="radio" class="form-check-input" id="isManual" name="isManual"  placeholder="x" value="true">
 		</div>
 	</div>
 	
@@ -182,19 +188,21 @@
 		 maxSecondsOnPerDay=0;
 		 vcal=0;
 		 numSamples=0;
+		 isManual=false;
 		 
 		  // The constructor method is a special method for creating and initializing an object created with a class.
-		  constructor(interval,vOn,vOff,maxSecondsOnPerDay,vcal,numSamples ) {
+		  constructor(interval,vOn,vOff,maxSecondsOnPerDay,vcal,numSamples,isManual ) {
 			this.interval = interval;
 			this.vOn = vOn;
 			this.vOff = vOff;
 			this.maxSecondsOnPerDay = maxSecondsOnPerDay;
 			this.vcal = vcal;
 			this.numSamples = numSamples;
+			this.isManual = isManual;
 		  }
 		}  
 	
-	var pcConfig=new PCConfig(0,0,0,0,0,0);
+	var pcConfig=new PCConfig(0,0,0,0,0,0,false);
 
 	setInterval(getData, 30000);
 
@@ -517,6 +525,8 @@
 		pcConfig.maxSecondsOnPerDay = document.getElementById("maxSecondsOnPerDay").value;
 		pcConfig.vcal = document.getElementById("vcal").value;
 		pcConfig.numSamples = document.getElementById("numSamples").value;
+		pcConfig.isManual=document.getElementById("isManual").checked;
+		
 		
 		const xhr = new XMLHttpRequest();
 		const url = "/SAVE_CONFIG"; 
@@ -558,6 +568,7 @@
 		document.getElementById("maxSecondsOnPerDay").value = pcConfig.maxSecondsOnPerDay;
 		document.getElementById("vcal").value = pcConfig.vcal;
 		document.getElementById("numSamples").value =  pcConfig.numSamples;
+		document.getElementById("isManual").value =  pcConfig.isManual;
 		myModal.show();
 	  
 	}

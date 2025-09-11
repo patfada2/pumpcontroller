@@ -60,6 +60,7 @@ String Config::toJson() {
 	doc["maxSecondsOnPerDay"] = maxSecondsOnPerDay;
 	doc["vcal"] = vcal;
 	doc["numSamples"] = numSamples;
+	doc["isManual"] = isManual;
 
 	String s;
 	serializeJson(doc, s);

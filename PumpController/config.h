@@ -15,7 +15,7 @@ public:
   int maxSecondsOnPerDay = 4800;
 	double vcal = 54.0;  //volatage calibration
 	int numSamples=5; //number of time A0 is sampled for average
-  boolean isManual; //if tru the pump is not turned on automatically, must be toggeld from UI
+  boolean isManual; //if true the pump is not turned on automatically, must be toggeld from UI
 	
 	Config();
 	void save();
