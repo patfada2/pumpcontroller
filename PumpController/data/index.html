@@ -17,8 +17,8 @@
 <body>
 
 
-	<div class="container  border border-primary">
-		
+	<!- <div class="container  border border-primary"> -->
+	<div class="container-fluid min-vh-100 d-flex flex-column">	
 
 		<div class="row row bg-primary  pt-3">
         	<div class="col-sm-2  border border-primary">
@@ -49,17 +49,12 @@
 
 		<div class="row bg-light  border border-primary">
 			<div class="col-sm-2  border border-primary pt-3">
-
 				<div class="row mb-3">  <button type="button" class="btn btn-outline-primary w-100" onclick="toggleRelay2()">Pump on/off</button></div>
 				<div class="row mb-3">  <button type="button" class="btn btn-outline-primary w-100" onclick="editConfig()">Edit Config</button></div>
-
-
 			</div>
 			<div class="col-sm-7 bg-white" id="Middle">
-
-				<div id="chart-voltage" class="container"></div>
-
-
+				<div class="row mb-3  border border-primary pt-3""><div id="chart-voltage" class="container"></div></div>
+				<div class="row mb-3  border border-primary pt-3""><div id="chart-status" class="container"></div></div>
 			</div>
 			<div class="col-sm-3  border border-primary" id="right">
 
@@ -223,7 +218,8 @@
 				enabled: true,
 				type: 'xy'
 			},
-			panKey: 'shift'
+			panKey: 'shift',
+			spacingBottom: 0
 		},
 		rangeSelector: {
 
@@ -274,7 +270,7 @@
 		},
 
 		title: {
-			text: 'Battery Voltage and Relay State'
+			text: 'Battery Voltage'
 		},
 		subtitle: {
 			text: 'Click and drag to zoom in. Hold down shift key to pan in both ' +
@@ -291,19 +287,6 @@
 			yAxis: 0,
 
 			color: Highcharts.getOptions().colors[1],
-		},
-		{
-			name: 'relay_state',
-			showInLegend: false,
-			data: [],	
-			dataLabels: {
-				enabled: true,
-			    //format: '{y:.2d}' 
-			},
-			yaxis: 1,
-			color: Highcharts.getOptions().colors[2],
-				
-		
 		}],
 		plotOptions: {
 			line: {
@@ -325,10 +308,110 @@
 			min: 0,
 			max: 20
 			
-		}, {
+		}],
+		credits: {enabled: false}
+	});
+
+	var chartT2 = new Highcharts.stockChart('chart-status', {
+		chart: {
+			time: {
+				timezone: 'Pacific/Auckland'
+			},
+			type: 'line',
+			zooming: {
+				type: 'xy'
+			},
+			panning: {
+				enabled: true,
+				type: 'xy'
+			},
+			panKey: 'shift',
+			spacingBottom: 0
+			
+		},
+		rangeSelector: {
+
+			allButtonsEnabled: true,
+			buttons: [
+				{
+					type: 'hour',
+					count: 3,
+					text: 'Minute',
+					dataGrouping: {
+						forced: true,
+						units: [['minute', [1]]]
+					}
+				},
+				{
+					type: 'day',
+					count: 3,
+					text: 'Hour',
+					dataGrouping: {
+						forced: true,
+						units: [['hour', [1]]]
+					}
+				}, {
+					type: 'month',
+					count: 3,
+					text: 'Day',
+					dataGrouping: {
+						forced: true,
+						units: [['day', [1]]]
+					}
+				}, {
+					type: 'year',
+					count: 1,
+					text: 'Week',
+					dataGrouping: {
+						forced: true,
+						units: [['week', [1]]]
+					}
+				}, {
+					type: 'all',
+					text: 'All'
+
+				}],
+			buttonTheme: {
+				width: 60
+			},
+			selected: 4
+		},
+
+		title: {
+			text: 'Relay State'
+		},
+		subtitle: {
+			text: 'Click and drag to zoom in. Hold down shift key to pan in both ' +
+				'directions.'
+		},
+		series: [
+		{
+			name: 'relay_state',
+			showInLegend: false,
+			data: [],	
+			dataLabels: {
+				enabled: true,
+			    //format: '{y:.2d}' 
+			},
+			yaxis: 0,
+			color: Highcharts.getOptions().colors[2],
+				
+		
+		}],
+		plotOptions: {
+			line: {
+				animation: false,
+				dataLabels: {enabled: true}
+			}
+		},
+		xAxis: {
+			type: 'datetime',
+			dateTimeLabelFormats: {second: '%H:%M:%S'}
+		},
+		yAxis: [ {
 			lineWidth: 1,
 			color: Highcharts.getOptions().colors[2],
-			opposite: true,
+			opposite: false,
 			title: {
 				text: 'Relay Off/On'
 			},
@@ -337,7 +420,7 @@
 		}],
 		credits: {enabled: false}
 	});
-
+	
 	function log(msg) {
     	document.getElementById("log").innerHTML = msg;
     }
@@ -376,7 +459,7 @@
 				const json = xhttp.responseText;
 
 				const obj = JSON.parse(json);
-				chartT.series[1].setData(obj);
+				chartT2.series[0].setData(obj);
 				log("loaded state history");
 
 			}
@@ -406,8 +489,8 @@
 		xhttp.onreadystatechange = function () {
 			if (this.readyState == 4 && this.status == 200) {				
 				log("cleared relay state history");
-				if (chartT.series.length) {
-					chartT.series[1].setData([]);
+				if (chartT2.series.length) {
+					chartT2.series[0].setData([]);
 				}
 
 			}
@@ -473,7 +556,7 @@
 				
 				const json = xhttp.responseText;
 				const obj = JSON.parse(json);
-				chartT.series[1].addPoint(obj.y, obj.x);
+				chartT2.series[0].addPoint(obj.y, obj.x);
 				
 				document.getElementsByName("relay_state")[0].placeholder= obj.state;	
 				document.getElementsByName("ac_state")[0].placeholder= obj.AC;					
