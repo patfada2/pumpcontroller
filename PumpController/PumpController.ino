@@ -151,22 +151,19 @@ void relay2Off() {
 }
 
 void toggleRelay() {
- 
+
   if (relayIsOn) {
     relayOff();
   } else relayOn();
-
-
-  
 }
 
 void toggleRelay2() {
-  
+
   if (relay2IsOn) {
     relay2Off();
   } else relay2On();
-  
- 
+
+
   displayStatus();
 }
 
@@ -351,13 +348,10 @@ void displayStatus() {
     ACStatus = "off";
   }
 
-
-
-
-  String msg1 = String(secondsOn) + "/" + String(c.maxSecondsOnPerDay) + " AC=" + ACStatus +" manual mode="+ c.modeToString();
+  String msg1 = String(secondsOn) + "/" + String(c.maxSecondsOnPerDay) + " AC=" + ACStatus + " manual mode=" + c.modeToString();
   String msg2;
 
-  if (relayIsOn) {
+  if (relay2IsOn) {
     msg2 = "ON v=" + String(vin, 2);
   } else msg2 = "OFF v=" + String(vin, 2);
 
@@ -415,7 +409,7 @@ boolean ACisOn;
 void loop() {
   ElegantOTA.loop();
 
-  logInfo("loop start");
+  logInfo("loop start v1.1");
 
   timeClientRetryCount = 0;
   while (!timeClient.update() && (timeClientRetryCount < 10)) {
@@ -449,45 +443,38 @@ void loop() {
   if (secondsElapsed > secondsInDay) {
     secondsElapsed = 0;
   }
+  ACisOn = getACStatus();
 
   if (!c.isManual) {
+    logInfo("checking pump status");
+    displayStatus();
+
     if (relay2IsOn) {
       secondsOn += c.interval;
     }
 
-    if ((secondsElapsed < c.maxSecondsOnPerDay) and (relay2IsOn == false) and (vin > c.vOn)) {
+    if ((secondsOn < c.maxSecondsOnPerDay) and !relay2IsOn and (vin > c.vOn) and ACisOn) {
       logInfo("turning pump on");
-      relayOn();
-    }
-
-    if (relay2IsOn and ((vin < c.vOff) or (secondsOn > c.maxSecondsOnPerDay))) {
-      logInfo("turning pump off");
-
-      ACisOn = getACStatus();
-
-      if (relay2IsOn and (secondsOn > c.maxSecondsOnPerDay)) {
-        logInfo("turning pump off because time is up");
-
-        relayOff();
-      }
+      relay2On();
     }
 
     if (relay2IsOn and (vin < c.vOff)) {
-      logInfo("turning pump off because battery volage is too low");
+      logInfo("turning pump off because voltage is too low");
+      relay2Off();
+    }
 
-      relayOff();
+    if (relay2IsOn and (secondsOn > c.maxSecondsOnPerDay)) {
+      logInfo("turning pump off because time is up");
+      relay2Off();
     }
 
     if (relay2IsOn and !ACisOn) {
-      logInfo("turning pump relay off becasuse AC is Off");
-      relayOff();
+      logInfo("turning pump relay off because AC is off");
+      relay2Off();
     }
 
-    if ((secondsElapsed < c.maxSecondsOnPerDay) and (relay2IsOn == false) and (vin > c.vOn) and ACisOn) {
-      logInfo("turning pump on");
-      relayOn();
-    }
-  }
+
+  } else logInfo("manual mode");
 
   displayStatus();
 }
