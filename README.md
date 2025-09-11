@@ -15,7 +15,7 @@ compile bin file from arduino from sketch>export menu
 
 see https://randomnerdtutorials.com/esp32-ota-elegantota-arduino/
 
-I cant get the OTA upload to the webfiles working - canr make a valid littlefs bin. Haves installed mklittlefs.
+I cant get the OTA upload to the webfiles working - cant make a valid littlefs bin. Have installed mklittlefs.
 No joy - may need to fix the block size etc?
 
 
@@ -27,13 +27,15 @@ time comes from an NTP server- requires connection to internet
 
 ## to do
 
-enable manual mode from UI
+show manual mode on UI
 
 enable lcd from config
 
 switch to main NTPClient lib
 
 graceful degredation if internet not available (NTP fails)
+
+create  a static route from rosiewifi to comcast
 
 
 
