@@ -350,7 +350,7 @@
 
 	function getData() {
 		readVoltage();
-		readRelayState();
+		readState();
 		getElapsed();
 		getManualMode();
 	}
@@ -471,20 +471,20 @@
 		clearRelayStateHistory();
 	}
 
-	function readRelayState() {
+	function readState() {
 		var xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function () {
 			if (this.readyState == 4 && this.status == 200) {
 				
 				const json = xhttp.responseText;
 				const obj = JSON.parse(json);
-				//chartT.series[1].addPoint(obj.y, obj.x);
-				chartT.series[1].addPoint(obj);
+				chartT.series[1].addPoint(obj.y, obj.x);
+				
 				document.getElementsByName("relay_state")[0].placeholder= obj.state;	
 				document.getElementsByName("ac_state")[0].placeholder= obj.AC;					
 			}
 		};
-		xhttp.open("GET", "/GET_RELAY_STATE", true);
+		xhttp.open("GET", "/GET_STATE", true);
 		xhttp.send();
 	};
 

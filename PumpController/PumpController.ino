@@ -298,8 +298,8 @@ void setupWebServer() {
     request->send(200, "text/plain", booleanToOnOff(relay2IsOn).c_str());
   });
 
-  server.on("/GET_RELAY_STATE", HTTP_GET, [](AsyncWebServerRequest* request) {
-    String data = "{\"x\":" + epochToStringms(dateTime) + ",\"y\":" + String(relayIsOn) + ",\"state\":\"" + booleanToOnOff(relay2IsOn) + "\"" + ",\"AC\":\"" + booleanToOnOff(getACStatus()) + "\"}";
+  server.on("/GET_STATE", HTTP_GET, [](AsyncWebServerRequest* request) {
+    String data = "{\"x\":" + epochToStringms(dateTime) + ",\"y\":" + String(relay2IsOn) + ",\"state\":\"" + booleanToOnOff(relay2IsOn) + "\"" + ",\"AC\":\"" + booleanToOnOff(getACStatus()) + "\"}";
     request->send(200, "text/plain", data.c_str());
     saveRelay2State();
   });
