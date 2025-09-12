@@ -64,7 +64,7 @@ boolean relayIsOn;
 boolean relay2IsOn;
 //29 June 2024
 long dateTime = 1719685735;  //29 June 2024
-
+boolean wifiOK =false;
 //I think lcd needs d2
 const int relay1Pin = D6;  //
 const int relay2Pin = D5;  //controls the AC relay
@@ -249,7 +249,7 @@ void setupLittleFS() {
   }
 
   listAllFilesInDir("/");
-  listAllFilesInDir("/plugin/");
+  //listAllFilesInDir("/plugin/");
 }
 
 const char* PARAM_MESSAGE = "message";
@@ -318,6 +318,16 @@ void setupWebServer() {
     request->send(200, "text/plain", getTimeElapsed());
   });
 
+   server.on("/LIST_FILES", HTTP_GET, [](AsyncWebServerRequest* request) {
+    request->send(200, "text/plain",  "");
+    listAllFilesInDir("/");
+  });
+
+  server.on("/RESET", HTTP_GET, [](AsyncWebServerRequest* request) {
+    request->send(200, "text/plain",  "");
+    ESP.reset();
+  });
+
   server.addHandler(new AsyncCallbackJsonWebHandler("/SAVE_CONFIG", [](AsyncWebServerRequest* request, JsonVariant& json) {
     logInfo("received save config request");
     if (json.is<JsonObject>()) {
@@ -378,7 +388,7 @@ void setup() {
   getACStatus();
 
 
-  boolean wifiOK = setupWiFi();
+  wifiOK = setupWiFi();
 
   setupLCD();
   lcdDisplayStatus("Pump Controller", "Connecting to wifi....");
@@ -405,30 +415,39 @@ void setup() {
 }
 
 int timeClientRetryCount = 0;
+int maxTimeClientRetryCount=10;
 boolean ACisOn;
 void loop() {
   ElegantOTA.loop();
 
-  logInfo("loop start v1.1");
+  logInfo("loop start v1.1.4");
 
+  if (!wifiOK) {
+    wifiOK = setupWiFi();
+  }
+
+  //this only works with the fork of ntpclient. Needs to be imported into the skethc from zip
+  if (!wifiOK) {
+    maxTimeClientRetryCount=0;
+  }
   timeClientRetryCount = 0;
-  while (!timeClient.update() && (timeClientRetryCount < 10)) {
-    logInfo(".");
+  while (!timeClient.update() and (timeClientRetryCount < maxTimeClientRetryCount)) {
     timeClient.forceUpdate();
     timeClientRetryCount++;
+    logInfo(".");
   }
-  logInfo("time=" + timeClient.getFormattedDate());
-
-
+  if  (timeClientRetryCount < maxTimeClientRetryCount) {
+   logInfo("NTP time=" + timeClient.getFormattedTime());
+   dateTime = timeClient.getEpochTime();
+  } else {
+    logInfo("estimating time");
+    dateTime=dateTime+c.interval;
+  }
+  
   digitalWrite(LED_BUILTIN, HIGH);
 
   delay(c.interval * 1000);
 
-  // get the time (convert to ms for chart)
-  dateTime = timeClient.getEpochTime();
-
-  logInfo("date time (ms since Jan1 1970)= " + epochToStringms(dateTime));
-  // read the data
   vin = A0toV(readA0Avg(c.numSamples));
 
   //save to file

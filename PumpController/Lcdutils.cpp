@@ -8,7 +8,7 @@
 // set the LCD number of columns and rows
 int lcdColumns = 16;
 int lcdRows = 2;
-boolean lcdEnabled = true; // make this true if the LCD is wired up, otherwise it seems to mess up the setup/loop code
+boolean lcdEnabled = false; // make this true if the LCD is wired up, otherwise it seems to mess up the setup/loop code
 
   // set LCD address, number of columns and rows
   // if you don't know your display address, run an I2C scanner sketch

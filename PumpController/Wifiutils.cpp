@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include "wifiutils.h"
+#include "common.h"
 
 
 
@@ -37,13 +38,17 @@ boolean setupWiFi() {
   while ((WiFi.status() != WL_CONNECTED) && retry <10 ){
     delay(1000);
     retry++;
-    Serial.println("Connecting to WiFi..");
+    logInfo("Connecting to WiFi..");
   }
   if (WiFi.status() == WL_CONNECTED) {
     result = true;
-  } else result = false;
+    Serial.println(WiFi.localIP());
+  } else {
+    result = false;
+    logInfo("failed to connect to wifi ") ;
+  }
   // Print ESP32 Local IP Address
-  Serial.println(WiFi.localIP());
+  
   return result;
 }
 
