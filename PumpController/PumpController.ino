@@ -252,6 +252,7 @@ void setupLittleFS() {
   FSInfo info;
   LittleFS.info(info);
   logInfo("littleFS block size = " + String(info.blockSize));
+   logInfo("littleFS page size = " + String(info.pageSize));
 }
 
 const char* PARAM_MESSAGE = "message";
