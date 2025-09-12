@@ -249,7 +249,9 @@ void setupLittleFS() {
   }
 
   listAllFilesInDir("/");
-  //listAllFilesInDir("/plugin/");
+  FSInfo info;
+  LittleFS.info(info);
+  logInfo("littleFS block size = " + String(info.blockSize));
 }
 
 const char* PARAM_MESSAGE = "message";
