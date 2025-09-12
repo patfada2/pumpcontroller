@@ -27,13 +27,13 @@ time comes from an NTP server- requires connection to internet
 
 ## to do
 
-show manual mode on UI
+
 
 enable lcd from config
 
 switch to main NTPClient lib
+- could not get to work. The fork of NtpClient in the lib dir works, needs to be imported into sketch as zip
 
-graceful degredation if internet not available (NTP fails)
 
 create  a static route from rosiewifi to comcast
 
