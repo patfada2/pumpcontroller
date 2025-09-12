@@ -3,25 +3,28 @@
 #include "wifiutils.h"
 #include "common.h"
 
-
-
-
-//const char* ssid = "COMFAST";
-const char* ssid = "RosieWiFi";
+//#define ROSIE_WIFI
+#define COMFAST
 const char* password = "Thr33.0n3";
+#if defined(ROSIE_WIFI)
+const char* ssid = "RosieWiFi";
+IPAddress local_IP(192, 168, 1, 99);
+IPAddress gateway(192, 168, 1, 254);
+#elif defined(COMFAST)
+const char* ssid = "COMFAST";
+IPAddress local_IP(192, 168, 10, 99);
+IPAddress gateway(192, 168, 10, 254);
+#else
+Serial.println("Wifi network undefined");
 
+#endif
 
 boolean setupWiFi() {
-
   boolean result = false;
 
-  // Connect to Wi-Fi
-  // Set your Static IP address
-  //IPAddress local_IP(192, 168, 10, 99);
-  IPAddress local_IP(192, 168, 1, 99);
-  // Set your Gateway IP address
- // IPAddress gateway(192, 168, 10, 254);
-  IPAddress gateway(192, 168, 1, 254);
+  String msg = "connecting to SSID=" + String(ssid);
+  msg = msg + "local_ip="+local_IP.toString();
+  Serial.println(msg);
 
   IPAddress subnet(255, 255, 255, 0);
   IPAddress primaryDNS(8, 8, 8, 8);    //optional
@@ -35,7 +38,7 @@ boolean setupWiFi() {
 
   WiFi.begin(ssid, password);
   int retry = 0;
-  while ((WiFi.status() != WL_CONNECTED) && retry <10 ){
+  while ((WiFi.status() != WL_CONNECTED) && retry < 10) {
     delay(1000);
     retry++;
     logInfo("Connecting to WiFi..");
@@ -45,10 +48,9 @@ boolean setupWiFi() {
     Serial.println(WiFi.localIP());
   } else {
     result = false;
-    logInfo("failed to connect to wifi ") ;
+    logInfo("failed to connect to wifi ");
   }
   // Print ESP32 Local IP Address
-  
+
   return result;
 }
-

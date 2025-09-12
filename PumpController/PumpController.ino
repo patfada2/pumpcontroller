@@ -430,7 +430,9 @@ void loop() {
   }
 
   //this only works with the fork of ntpclient. Needs to be imported into the skethc from zip
-  if (!wifiOK) {
+  if (wifiOK) {
+    maxTimeClientRetryCount=5;
+  } else {
     maxTimeClientRetryCount=0;
   }
   timeClientRetryCount = 0;
