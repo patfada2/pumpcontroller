@@ -173,7 +173,7 @@ void toggleRelay2() {
 void saveRelay2State() {
   //save to file
   logInfo("saving relay state");
-  String rdata = "[" + epochToStringms(dateTime) + "," + String(relay2IsOn) + "],";
+  String rdata = "[" + epochToStringms(c.dateTime) + "," + String(relay2IsOn) + "],";
   // to do add relay 2
   appendFile(LittleFS, relay2DataFile.c_str(), rdata.c_str());
 }
@@ -305,13 +305,13 @@ void setupWebServer() {
   });
 
   server.on("/GET_STATE", HTTP_GET, [](AsyncWebServerRequest* request) {
-    String data = "{\"x\":" + epochToStringms(dateTime) + ",\"y\":" + String(relay2IsOn) + ",\"state\":\"" + booleanToOnOff(relay2IsOn) + "\"" + ",\"AC\":\"" + booleanToOnOff(getACStatus()) + "\"}";
+    String data = "{\"x\":" + epochToStringms(c.dateTime) + ",\"y\":" + String(relay2IsOn) + ",\"state\":\"" + booleanToOnOff(relay2IsOn) + "\"" + ",\"AC\":\"" + booleanToOnOff(getACStatus()) + "\"}";
     request->send(200, "text/plain", data.c_str());
     saveRelay2State();
   });
 
   server.on("/GET_VOLTAGE", [](AsyncWebServerRequest* request) {
-    String data = "{\"x\":" + epochToStringms(dateTime) + ",\"y\":" + String(vin) + "}";
+    String data = "{\"x\":" + epochToStringms(c.dateTime) + ",\"y\":" + String(vin) + "}";
     request->send(200, "text/plain", data.c_str());
     logInfo("get voltage returned " + data);
   });
@@ -447,10 +447,10 @@ void loop() {
   }
   if  (timeClientRetryCount < maxTimeClientRetryCount) {
    logInfo("NTP time=" + timeClient.getFormattedTime());
-   dateTime = timeClient.getEpochTime();
+   c.dateTime = timeClient.getEpochTime();
   } else {
     logInfo("estimating time");
-    dateTime=dateTime+c.interval;
+    c.dateTime=c.dateTime+c.interval;
   }
   
   digitalWrite(LED_BUILTIN, HIGH);
@@ -460,7 +460,7 @@ void loop() {
   vin = A0toV(readA0Avg(c.numSamples));
 
   //save to file
-  String data = "[" + epochToStringms(dateTime) + "," + String(vin) + "],";
+  String data = "[" + epochToStringms(c.dateTime) + "," + String(vin) + "],";
   appendFile(LittleFS, vinDataFile.c_str(), data.c_str());
 
   Serial.println(WiFi.localIP());
