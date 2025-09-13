@@ -29,7 +29,7 @@ void Config::update(JsonObject config) {
 	vcal = config["vcal"].as<double>();
 	numSamples = config["numSamples"].as<int>();
 	isManual = config["isManual"].as<int>();
-	dateTime =  config["isManual"].
+	dateTime =  config["dateTime"].as<long>();
 }
 
 
