@@ -427,7 +427,7 @@ boolean ACisOn;
 void loop() {
   ElegantOTA.loop();
 
-  logInfo("loop start v1.1.4");
+  logInfo("loop start v1.1.8");
 
   if (!wifiOK) {
     wifiOK = setupWiFi();
