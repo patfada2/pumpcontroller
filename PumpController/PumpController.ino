@@ -425,7 +425,12 @@ void setup() {
 int timeClientRetryCount = 0;
 int maxTimeClientRetryCount=10;
 boolean ACisOn;
+unsigned long startTime;
+unsigned long endTime;
+unsigned long duration;
+
 void loop() {
+  startTime = millis();
   ElegantOTA.loop();
 
   logInfo("loop start v1.1.9");
@@ -506,4 +511,34 @@ void loop() {
   } else logInfo("manual mode");
 
   displayStatus();
+
+  if (!wifiOK) {
+    wifiOK = setupWiFi();
+  }
+
+  //this only works with the fork of ntpclient. Needs to be imported into the skethc from zip
+  if (wifiOK) {
+    maxTimeClientRetryCount=5;
+  } else {
+    maxTimeClientRetryCount=0;
+  }
+  timeClientRetryCount = 0;
+  while (!timeClient.update() and (timeClientRetryCount < maxTimeClientRetryCount)) {
+    timeClient.forceUpdate();
+    timeClientRetryCount++;
+    logInfo(".");
+  }
+  if  (timeClientRetryCount < maxTimeClientRetryCount) {
+   logInfo("NTP time=" + timeClient.getFormattedTime());
+   c.dateTime = timeClient.getEpochTime();
+  } else {
+    logInfo("estimating time");
+    c.dateTime=c.dateTime+c.interval;
+    endTime = millis();
+    duration = endTime - startTime;
+    //add loop time
+    c.dateTime=c.dateTime+  round(duration/1000);
+    logInfo("estimated dateTime="+ String(c.dateTime));
+
+  }
 }

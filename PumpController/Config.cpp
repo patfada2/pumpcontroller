@@ -36,7 +36,7 @@ void Config::update(JsonObject config) {
 	isManual = config["isManual"].as<int>();
 	
 	dateTime =  config["dateTime"].as<long>();
-	logInfo("!!!!! datetime is " + String(dateTime) );
+
 }
 
 
