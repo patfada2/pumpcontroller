@@ -16,6 +16,7 @@ public:
 	double vcal = 54.0;  //volatage calibration
 	int numSamples=5; //number of time A0 is sampled for average
   boolean isManual; //if true the pump is not turned on automatically, must be toggeld from UI
+	long dateTime = 1757724226 ;  //13 Sept 2025
 	
 	Config();
 	void save();

@@ -29,6 +29,7 @@ void Config::update(JsonObject config) {
 	vcal = config["vcal"].as<double>();
 	numSamples = config["numSamples"].as<int>();
 	isManual = config["isManual"].as<int>();
+	dateTime =  config["isManual"].
 }
 
 
@@ -45,7 +46,7 @@ void Config::load() {
 		maxSecondsOnPerDay = doc["maxSecondsOnPerDay"];
 		vcal = doc["vcal"];
 		numSamples = doc["numSamples"];
-		isManual = doc["isManual"];
+		dateTime = doc["dateTime"];
 
 		Serial.println("updated config to + toJson()");
 	}
@@ -66,6 +67,7 @@ String Config::toJson() {
 	doc["vcal"] = vcal;
 	doc["numSamples"] = numSamples;
 	doc["isManual"] = isManual;
+	doc["dateTime"] = dateTime;
 
 	String s;
 	serializeJson(doc, s);

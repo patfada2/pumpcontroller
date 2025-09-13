@@ -66,7 +66,7 @@ time_t _now = 0;
 boolean relayIsOn;
 boolean relay2IsOn;
 //29 June 2024
-long dateTime = 1757724226 ;  //13 Sept 2025
+
 boolean wifiOK =false;
 //I think lcd needs d2
 const int relay1Pin = D6;  //
@@ -333,6 +333,7 @@ void setupWebServer() {
     request->send(200, "text/plain",  "");
     ESP.reset();
   });
+
 
   server.addHandler(new AsyncCallbackJsonWebHandler("/SAVE_CONFIG", [](AsyncWebServerRequest* request, JsonVariant& json) {
     logInfo("received save config request");
