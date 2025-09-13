@@ -53,6 +53,7 @@
 			<div class="col-sm-2  border border-primary pt-3">
 				<div class="row mb-3">  <button type="button" class="btn btn-outline-primary w-100" onclick="toggleRelay2()">Pump on/off</button></div>
 				<div class="row mb-3">  <button type="button" class="btn btn-outline-primary w-100" onclick="editConfig()">Edit Config</button></div>
+				<div class="row mb-3">  <button type="button" class="btn btn-outline-primary w-100" onclick="updateTime()">Update Time</button></div>
 			</div>
 			<div class="col-sm-7 bg-white" id="Middle">
 				<div class="row mb-3  border border-primary pt-3""><div id="chart-voltage" class="container"></div></div>
@@ -193,7 +194,7 @@
 		 isManual=false;
 		 
 		  // The constructor method is a special method for creating and initializing an object created with a class.
-		  constructor(interval,vOn,vOff,maxSecondsOnPerDay,vcal,numSamples,isManual ) {
+		  constructor(interval,vOn,vOff,maxSecondsOnPerDay,vcal,numSamples,isManual,dateTime ) {
 			this.interval = interval;
 			this.vOn = vOn;
 			this.vOff = vOff;
@@ -201,6 +202,7 @@
 			this.vcal = vcal;
 			this.numSamples = numSamples;
 			this.isManual = isManual;
+			this.dateTime = dateTime;		
 		  }
 		}  
 	
@@ -643,7 +645,6 @@
 		pcConfig.numSamples = document.getElementById("numSamples").value;
 		pcConfig.isManual=document.getElementById("isManual").checked;
 		
-		
 		const xhr = new XMLHttpRequest();
 		const url = "/SAVE_CONFIG"; 
 					
@@ -685,8 +686,13 @@
 		document.getElementById("vcal").value = pcConfig.vcal;
 		document.getElementById("numSamples").value =  pcConfig.numSamples;
 		document.getElementById("isManual").value =  pcConfig.isManual;
+		document.getElementById("dateTime").value =  pcConfig.dateTime;
 		myModal.show();
 	  
+	}
+	function updateTime() {
+	pcConfig.dateTime = Date.now();
+		saveConfig();
 	}
 
 	/* When the user clicks on the button,
