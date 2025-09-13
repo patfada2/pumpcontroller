@@ -331,6 +331,7 @@ void setupWebServer() {
 
   server.on("/RESET", HTTP_GET, [](AsyncWebServerRequest* request) {
     request->send(200, "text/plain",  "");
+    //LittleFS.format();
     ESP.reset();
   });
 
@@ -341,7 +342,7 @@ void setupWebServer() {
       JsonObject obj = json.as<JsonObject>();
       c.update(obj);
       c.save();
-      logInfo("XXX!!!!!!!!!!XXX dateTime is"+  String(c.dateTime));
+      logInfo("dateTime is"+  String(c.dateTime));
 
       request->send(200, "application/json", "{\"status\":\"success\"}");
     } else {
@@ -407,7 +408,7 @@ void setup() {
   }
 
   setupLittleFS();
-  //LittleFS.format();
+ 
   setupWebServer();
 
   logInfo("hello from PumpController");
