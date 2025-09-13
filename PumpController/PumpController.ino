@@ -341,6 +341,7 @@ void setupWebServer() {
       JsonObject obj = json.as<JsonObject>();
       c.update(obj);
       c.save();
+      logInfo("XXX!!!!!!!!!!XXX dateTime is"+  String(c.dateTime));
 
       request->send(200, "application/json", "{\"status\":\"success\"}");
     } else {
@@ -427,7 +428,7 @@ boolean ACisOn;
 void loop() {
   ElegantOTA.loop();
 
-  logInfo("loop start v1.1.8");
+  logInfo("loop start v1.1.9");
 
   if (!wifiOK) {
     wifiOK = setupWiFi();
