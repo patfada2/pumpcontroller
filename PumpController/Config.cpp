@@ -2,6 +2,7 @@
 #include "Config.h"
 #ifndef fileutils_h
 #include "./fileutils.h"
+#include "common.h"
 #endif
 Config::Config() {
 
@@ -16,10 +17,14 @@ Config::Config() {
 }
 
 void Config::save() {
+	logInfo("saving config: " +  toJson());
 	writeFile(LittleFS, configFilename.c_str(), toJson().c_str());
 }
 
 void Config::update(JsonObject config) {
+	char jsonCharOutput[1024]; // Ensure buffer is large enough
+  serializeJson(config, jsonCharOutput);
+	logInfo("updating config: with " + String(jsonCharOutput));
 	// Access JSON elements like:
 	interval = config["interval"].as<int>();
 	vOn = config["vOn"].as<double>();
@@ -29,7 +34,9 @@ void Config::update(JsonObject config) {
 	vcal = config["vcal"].as<double>();
 	numSamples = config["numSamples"].as<int>();
 	isManual = config["isManual"].as<int>();
+	
 	dateTime =  config["dateTime"].as<long>();
+	logInfo("!!!!! datetime is " + String(dateTime) );
 }
 
 

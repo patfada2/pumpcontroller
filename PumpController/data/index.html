@@ -691,8 +691,9 @@
 	  
 	}
 	function updateTime() {
-	pcConfig.dateTime = Date.now();
-		saveConfig();
+	pcConfig.dateTime = Math.round(Date.now()/1000);
+	log("dateTiwm is "  + pcConfig.dateTime );
+	saveConfig();
 	}
 
 	/* When the user clicks on the button,
