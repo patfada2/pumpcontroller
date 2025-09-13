@@ -468,6 +468,8 @@ void loop() {
 
   //save to file
   String data = "[" + epochToStringms(c.dateTime) + "," + String(vin) + "],";
+
+  logInfo("saving voltage reading " + data);
   appendFile(LittleFS, vinDataFile.c_str(), data.c_str());
 
   Serial.println(WiFi.localIP());

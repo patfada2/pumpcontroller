@@ -55,11 +55,12 @@ String readDataFile(String path) {
 
 
 void appendFile(fs::FS& fs, const char* path, const char* message) {
-  Serial.printf("Appending to file: %s\r\n", path);
+ logInfo("Appending to file: " + String(path));
+
 
   File file = fs.open(path, FILE_APPEND);
   if (!file) {
-    Serial.println("- failed to open file for appending");
+    logInfo("- failed to open file for appending");
     return;
   }
   //println
@@ -67,7 +68,7 @@ void appendFile(fs::FS& fs, const char* path, const char* message) {
    
     Serial.printf("- message appended: %s\r\n", message);
   } else {
-    Serial.println("- append failed");
+    logInfo("- append failed");
   }
   file.close();
 }
