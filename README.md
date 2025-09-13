@@ -15,8 +15,14 @@ compile bin file from arduino from sketch>export menu
 
 see https://randomnerdtutorials.com/esp32-ota-elegantota-arduino/
 
-I cant get the OTA upload to the webfiles working - cant make a valid littlefs bin. Have installed mklittlefs.
-No joy - may need to fix the block size etc?
+I cant get the OTA upload to the webfiles working - cant make a valid littlefs bin. 
+
+Have installed mklittlefs:
+
+  mklittlefs -c ./data -d 5  -s 2072576 -b 8192 data.bin
+
+
+it creates the bin and it will upload, but it doesnt work - no index.html
 
 
 ##NTP
@@ -37,6 +43,20 @@ switch to main NTPClient lib
 
 create  a static route from rosiewifi to comcast
 
+trying this (when connectted to redmi)
+
+>route add 192.168.10.0 MASK 255.255.255.0 192.168.10.254 -p 
+
+no  joy
+
+
+C:\Windows\System32>tracert 192.168.10.99
+
+Tracing route to 192.168.10.99 over a maximum of 30 hops
+
+  1     *        *     PatsXPS [192.168.31.243]  reports: Destination host unreachable.
+
+Trace complete.
 
 
 

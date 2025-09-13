@@ -42,7 +42,10 @@
 
 // Define NTP Client to get time
 WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP);
+
+//NTPClient timeClient(ntpUDP);
+// one if the ips returned from nslookup pool.ntp.org
+NTPClient timeClient(ntpUDP,"202.124.96.215");
 
 // Variables to save date and time
 String formattedDate;
