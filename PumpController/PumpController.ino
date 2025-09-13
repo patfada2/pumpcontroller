@@ -66,7 +66,7 @@ time_t _now = 0;
 boolean relayIsOn;
 boolean relay2IsOn;
 //29 June 2024
-long dateTime = 1719685735;  //29 June 2024
+long dateTime = 1757724226 ;  //13 Sept 2025
 boolean wifiOK =false;
 //I think lcd needs d2
 const int relay1Pin = D6;  //
