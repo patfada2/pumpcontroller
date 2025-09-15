@@ -47,6 +47,7 @@ String readDataFile(String path) {
   logInfo("last line = " + line);
   
   //replace trailing comma with  ']'
+  s[s.length() - 2] = ' ';
    s[s.length() - 1] = ']';
 //logInfo("!!!!!!!!!!!!!!!!!!!!!!!!!!" +s);
 
