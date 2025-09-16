@@ -54,6 +54,7 @@ String timeStamp;
 
 
 const int secondsInDay = 3600 * 24;
+const String version = "1.11.0";
 
 //config
 Config c;
@@ -434,7 +435,7 @@ void loop() {
   startTime = millis();
   ElegantOTA.loop();
 
-  logInfo("loop start v1.1.9");
+  logInfo("loop start v:" + version);
 
   if (!wifiOK) {
     wifiOK = setupWiFi();

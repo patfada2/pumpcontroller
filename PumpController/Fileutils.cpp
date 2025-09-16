@@ -35,19 +35,23 @@ String readDataFile(String path) {
 
   Serial.println("- read from file:");
   while (file.available()) {
-    line = (file.readString());
+    line = (file.readStringUntil('\n'));
     Serial.println(line);
-    s += line;
-    numLines += 1;
+    //dont want the last line which is just a comma
+    if (file.available() ) {
+      s += line;
+      numLines += 1;
+    }
   }
   file.close();
-  //replace trailig comma with ']'
-  s[s.length() - 3] = ' ';
-  s[s.length() - 2] = ' ';
-  s[s.length() - 1] = ']';
+  logInfo("last line = " + line);
+  
+  //replace trailing comma with  ']'
+   s[s.length() - 1] = ']';
+//logInfo("!!!!!!!!!!!!!!!!!!!!!!!!!!" +s);
 
-  Serial.println("read " + String(numLines) + " lines");
-  Serial.println(s);
+  logInfo("read " + String(numLines) + " lines");
+  //Serial.println(s);
   if (numLines > 0) {
     return s;
   } else return "[]";
@@ -55,7 +59,7 @@ String readDataFile(String path) {
 
 
 void appendFile(fs::FS& fs, const char* path, const char* message) {
- logInfo("Appending to file: " + String(path));
+  logInfo("Appending to file: " + String(path));
 
 
   File file = fs.open(path, FILE_APPEND);
@@ -65,7 +69,7 @@ void appendFile(fs::FS& fs, const char* path, const char* message) {
   }
   //println
   if (file.println(message)) {
-   
+
     Serial.printf("- message appended: %s\r\n", message);
   } else {
     logInfo("- append failed");
@@ -76,18 +80,18 @@ void appendFile(fs::FS& fs, const char* path, const char* message) {
 void listAllFilesInDir(String dir_path) {
   // Open the specified directory
   Dir dir = LittleFS.openDir(dir_path);
-  logInfo("listing dir " +  dir_path);
+  logInfo("listing dir " + dir_path);
   // Iterate through the directory contents
   while (dir.next()) {
     if (dir.isFile()) {
       // If it's a file, print its name
       logInfo("File: ");
-      logInfo(dir_path + dir.fileName() + " size: "+ String(dir.fileSize()));
+      logInfo(dir_path + dir.fileName() + " size: " + String(dir.fileSize()));
     } else if (dir.isDirectory()) {
       // If it's a directory, print its name and recursively list its contents
       logInfo("Dir: ");
       logInfo(dir_path + dir.fileName() + "/");
-      listAllFilesInDir(dir_path + dir.fileName() + "/"); // Recursive call for subdirectories
+      listAllFilesInDir(dir_path + dir.fileName() + "/");  // Recursive call for subdirectories
     }
   }
 }

@@ -61,4 +61,8 @@ Trace complete.
 
 
 
+----
+/voltageHistory.txt size: 17904 - stops  working
+/voltageHistory.txt size: 18024
+
 
