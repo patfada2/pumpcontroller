@@ -45,7 +45,7 @@ WiFiUDP ntpUDP;
 
 //NTPClient timeClient(ntpUDP);
 // one if the ips returned from nslookup pool.ntp.org
-NTPClient timeClient(ntpUDP,"202.124.96.215");
+NTPClient timeClient(ntpUDP,"nz.pool.ntp.org");
 
 // Variables to save date and time
 String formattedDate;
@@ -421,7 +421,7 @@ void setup() {
 
   // Initialize a NTPClient to get time
   timeClient.begin();
-  timeClient.setTimeOffset(43200);
+  // timeClient.setTimeOffset(43200);
 }
 
 int timeClientRetryCount = 0;
@@ -441,26 +441,8 @@ void loop() {
     wifiOK = setupWiFi();
   }
 
-  //this only works with the fork of ntpclient. Needs to be imported into the skethc from zip
-  if (wifiOK) {
-    maxTimeClientRetryCount=5;
-  } else {
-    maxTimeClientRetryCount=0;
-  }
-  timeClientRetryCount = 0;
-  while (!timeClient.update() and (timeClientRetryCount < maxTimeClientRetryCount)) {
-    timeClient.forceUpdate();
-    timeClientRetryCount++;
-    logInfo(".");
-  }
-  if  (timeClientRetryCount < maxTimeClientRetryCount) {
-   logInfo("NTP time=" + timeClient.getFormattedTime());
-   c.dateTime = timeClient.getEpochTime();
-  } else {
-    logInfo("estimating time");
-    c.dateTime=c.dateTime+c.interval;
-  }
   
+
   digitalWrite(LED_BUILTIN, HIGH);
 
   delay(c.interval * 1000);
@@ -520,6 +502,7 @@ void loop() {
     wifiOK = setupWiFi();
   }
 
+/**
   //this only works with the fork of ntpclient. Needs to be imported into the skethc from zip
   if (wifiOK) {
     maxTimeClientRetryCount=5;
@@ -545,4 +528,10 @@ void loop() {
     logInfo("estimated dateTime="+ String(c.dateTime));
 
   }
+  
+  **/
+  
+  timeClient.update();
+   c.dateTime = timeClient.getEpochTime();
+   logInfo("NTP time=" + timeClient.getFormattedTime());
 }

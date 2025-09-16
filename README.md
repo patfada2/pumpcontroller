@@ -29,6 +29,10 @@ it creates the bin and it will upload, but it doesnt work - no index.html
 time comes from an NTP server- requires connection to internet
  see https://randomnerdtutorials.com/esp32-ntp-client-date-time-arduino-ide/
  note it uses  fork of NTPClient installed from zip
+ 
+ trying 
+ nz.pool.ntp.org
+   w32tm /stripchart /computer:nz.pool.ntp.org /dataonly /samples:5
 
 
 ## to do
