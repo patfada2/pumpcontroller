@@ -10,6 +10,7 @@
 #include "Config.h"
 #include "./lcdutils.h"
 #include "./timeutils.h"
+#include "./wifiutils.h"
 #include <ElegantOTA.h>
 #include <AsyncJson.h>
 
@@ -355,38 +356,9 @@ void displayStatus() {
 void setup() {
   Serial.begin(115200);
 
-  const char* xpassword = "Thr33.0n3";
-
-  const char* xssid = "COMFAST";
-IPAddress xlocal_IP(192, 168, 10, 199);
-IPAddress xgateway(192, 168, 10, 1);
-
-  IPAddress xsubnet(255, 255, 255, 0);
- 
-  // Configures static IP address
-  //wifi.config kills NTPClient
-  /*
-  if (!WiFi.config(xlocal_IP, xgateway, subnet )) {
-    Serial.println("STA Failed to configure");
-   // result = false;
-  }
-  */
-
-  IPAddress xprimaryDNS(8, 8, 8, 8);    //optional
-  IPAddress xsecondaryDNS(8, 8, 4, 4);  //optional
-
-  // Configures static IP address
-  WiFi.config(xlocal_IP, xgateway, xsubnet, xprimaryDNS, xsecondaryDNS);
-  
 
 
-  WiFi.begin(xssid, xpassword);
-
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-
+  wifiOK = setupWiFi();
   timeClient.begin();
 
   setupLittleFS();
@@ -405,9 +377,6 @@ IPAddress xgateway(192, 168, 10, 1);
   //relayOff();
   getACStatus();
 
-
- // wifiOK = setupWiFi();
-  wifiOK = true;
   setupLCD();
   lcdDisplayStatus("Pump Controller", "Connecting to wifi....");
   if (wifiOK) {
@@ -437,6 +406,10 @@ unsigned long duration;
 
 void loop() {
 
+  if ( WiFi.status() != WL_CONNECTED){
+     setupWiFi();
+  }
+
   startTime = millis();
   ElegantOTA.loop();
 
@@ -444,7 +417,7 @@ void loop() {
 
   timeClient.update();
 
-  Serial.println("!!!!" + timeClient.getFormattedTime());
+  //Serial.println("!!!!" + timeClient.getFormattedTime());
 
   delay(1000);
 

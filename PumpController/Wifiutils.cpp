@@ -12,8 +12,8 @@ IPAddress local_IP(192, 168, 1, 99);
 IPAddress gateway(192, 168, 1, 254);
 #elif defined(COMFAST)
 const char* ssid = "COMFAST";
-IPAddress local_IP(192, 168, 10, 99);
-IPAddress gateway(192, 168, 10, 254);
+IPAddress local_IP(192, 168, 10, 199);
+IPAddress gateway(192, 168, 10, 1);
 #else
 Serial.println("Wifi network undefined");
 
