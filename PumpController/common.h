@@ -4,5 +4,6 @@
 #define COMMON_H
 
 void logInfo(String msg);
+String formatNumberWithCommas(long number);
 
 #endif  

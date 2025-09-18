@@ -1,5 +1,5 @@
 
-#include "./fileutils.h"
+#include "fileutils.h"
 #include "common.h"
 
 void writeFile(fs::FS& fs, const char* path, const char* message) {
@@ -81,20 +81,26 @@ void appendFile(fs::FS& fs, const char* path, const char* message) {
 void listAllFilesInDir(String dir_path) {
   // Open the specified directory
   Dir dir = LittleFS.openDir(dir_path);
-  logInfo("listing dir " + dir_path);
+  logInfo("==================== listing dir " + dir_path + "=====================");
   // Iterate through the directory contents
   while (dir.next()) {
     if (dir.isFile()) {
-      // If it's a file, print its name
+      // If it's a file, print its name and size
       logInfo("File: ");
       logInfo(dir_path + dir.fileName() + " size: " + String(dir.fileSize()));
     } else if (dir.isDirectory()) {
-      // If it's a directory, print its name and recursively list its contents
+      // If it's a directory, print its name 
       logInfo("Dir: ");
       logInfo(dir_path + dir.fileName() + "/");
-      listAllFilesInDir(dir_path + dir.fileName() + "/");  // Recursive call for subdirectories
     }
   }
+    logInfo("==================== FS Stats ================");
+    FSInfo info;
+    LittleFS.info(info);
+    logInfo("FS used:  " + formatNumberWithCommas(info.usedBytes)+ " bytes");
+    logInfo("FS total: " + formatNumberWithCommas(info.totalBytes)+ " bytes");
+  logInfo("==================== FS Stats ================");
+  
 }
 
 void readFile(fs::FS& fs, const char* path) {

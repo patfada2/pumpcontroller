@@ -27,7 +27,7 @@ String timeStamp;
 
 
 const int secondsInDay = 3600 * 24;
-const String version = "1.13.0";
+const String version = "1.13.2";
 
 //config
 Config c;
