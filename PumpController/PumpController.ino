@@ -1,51 +1,23 @@
-#include <LittleFS.h>
-
-#ifdef ESP32
-#include <WiFi.h>
-#include <ESPAsyncWebServer.h>
-#include <LittleFS.h>
-#include <FS.h>
-#else
-#include <Arduino.h>
-#include <ESP8266WiFi.h>
-#include <Hash.h>
-#include <ESPAsyncTCP.h>
-#include <ESPAsyncWebServer.h>
-//#include ESPAsyncWebSrv.h
-#include <ArduinoJson.h>
-#include <ESP8266WiFi.h>
-
-#endif
-#include <Wire.h>
-
-#include <ctime>
-#include <iomanip>
-#include <iostream>
-#include <sstream>
-#include <string>
-#include <TimeLib.h>
-#include <ESP8266HTTPClient.h>
-#include <LiquidCrystal_I2C.h>
-#include "./timeutils.h"
-#include "./fileutils.h"
-#include "./lcdutils.h"
-#include "./config.h"
-#include "./wifiutils.h"
-#include "Config.h"
-#include <AsyncJson.h>
-#include <ElegantOTA.h>
-#include <WebSerial.h>
-#include "common.h"
-
 #include <NTPClient.h>
+// change next line to use with another board/shield
+#include <ESP8266WiFi.h>
+//#include <WiFi.h> // for WiFi shield
+//#include <WiFi101.h> // for WiFi 101 shield or MKR1000
 #include <WiFiUdp.h>
+#include "./fileutils.h"
+#include <LittleFS.h>
+#include "common.h"
+#include "Config.h"
+#include "./lcdutils.h"
+#include "./timeutils.h"
+#include <ElegantOTA.h>
+#include <AsyncJson.h>
 
-// Define NTP Client to get time
+
+
+
 WiFiUDP ntpUDP;
-
-//NTPClient timeClient(ntpUDP);
-// one if the ips returned from nslookup pool.ntp.org
-NTPClient timeClient(ntpUDP,"nz.pool.ntp.org");
+NTPClient timeClient(ntpUDP);
 
 // Variables to save date and time
 String formattedDate;
@@ -54,7 +26,7 @@ String timeStamp;
 
 
 const int secondsInDay = 3600 * 24;
-const String version = "1.11.0";
+const String version = "1.13.0";
 
 //config
 Config c;
@@ -68,7 +40,7 @@ boolean relayIsOn;
 boolean relay2IsOn;
 //29 June 2024
 
-boolean wifiOK =false;
+boolean wifiOK = false;
 //I think lcd needs d2
 const int relay1Pin = D6;  //
 const int relay2Pin = D5;  //controls the AC relay
@@ -80,6 +52,7 @@ const int relay2_LED = D8;
 const int analogInPin = A0;  // ESP8266 Analog Pin ADC0 = A0
 String vinDataFile = "/voltageHistory.txt";
 String relay2DataFile = "/stateHistory.txt";
+
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
 
@@ -224,7 +197,6 @@ String clearRelayStateHistory() {
   writeFile(LittleFS, relay2DataFile.c_str(), "");
   return "state history cleared";
 }
-
 void setupLittleFS() {
 
   // Initialize LittleFS
@@ -256,7 +228,7 @@ void setupLittleFS() {
   FSInfo info;
   LittleFS.info(info);
   logInfo("littleFS block size = " + String(info.blockSize));
-   logInfo("littleFS page size = " + String(info.pageSize));
+  logInfo("littleFS page size = " + String(info.pageSize));
 }
 
 const char* PARAM_MESSAGE = "message";
@@ -380,10 +352,46 @@ void displayStatus() {
   lcdDisplayStatus(msg1, msg2);
 }
 
-
-
 void setup() {
-  // Serial port for debugging purposes
+  Serial.begin(115200);
+
+  const char* xpassword = "Thr33.0n3";
+
+  const char* xssid = "COMFAST";
+IPAddress xlocal_IP(192, 168, 10, 199);
+IPAddress xgateway(192, 168, 10, 1);
+
+  IPAddress xsubnet(255, 255, 255, 0);
+ 
+  // Configures static IP address
+  //wifi.config kills NTPClient
+  /*
+  if (!WiFi.config(xlocal_IP, xgateway, subnet )) {
+    Serial.println("STA Failed to configure");
+   // result = false;
+  }
+  */
+
+  IPAddress xprimaryDNS(8, 8, 8, 8);    //optional
+  IPAddress xsecondaryDNS(8, 8, 4, 4);  //optional
+
+  // Configures static IP address
+  WiFi.config(xlocal_IP, xgateway, xsubnet, xprimaryDNS, xsecondaryDNS);
+  
+
+
+  WiFi.begin(xssid, xpassword);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  timeClient.begin();
+
+  setupLittleFS();
+
+   // Serial port for debugging purposes
   Serial.begin(115200);
   delay(1000);
 
@@ -398,8 +406,8 @@ void setup() {
   getACStatus();
 
 
-  wifiOK = setupWiFi();
-
+ // wifiOK = setupWiFi();
+  wifiOK = true;
   setupLCD();
   lcdDisplayStatus("Pump Controller", "Connecting to wifi....");
   if (wifiOK) {
@@ -408,8 +416,7 @@ void setup() {
     lcdDisplayStatus("wifi connection failed", "");
   }
 
-  setupLittleFS();
- 
+   
   setupWebServer();
 
   logInfo("hello from PumpController");
@@ -419,9 +426,6 @@ void setup() {
   c.load();
   logInfo(c.toJson().c_str());
 
-  // Initialize a NTPClient to get time
-  timeClient.begin();
-  // timeClient.setTimeOffset(43200);
 }
 
 int timeClientRetryCount = 0;
@@ -432,16 +436,17 @@ unsigned long endTime;
 unsigned long duration;
 
 void loop() {
+
   startTime = millis();
   ElegantOTA.loop();
 
   logInfo("loop start v:" + version);
 
-  if (!wifiOK) {
-    wifiOK = setupWiFi();
-  }
+  timeClient.update();
 
-  
+  Serial.println("!!!!" + timeClient.getFormattedTime());
+
+  delay(1000);
 
   digitalWrite(LED_BUILTIN, HIGH);
 
@@ -497,41 +502,20 @@ void loop() {
   } else logInfo("manual mode");
 
   displayStatus();
-
-  if (!wifiOK) {
-    wifiOK = setupWiFi();
-  }
-
-/**
-  //this only works with the fork of ntpclient. Needs to be imported into the skethc from zip
-  if (wifiOK) {
-    maxTimeClientRetryCount=5;
-  } else {
-    maxTimeClientRetryCount=0;
-  }
-  timeClientRetryCount = 0;
-  while (!timeClient.update() and (timeClientRetryCount < maxTimeClientRetryCount)) {
-    timeClient.forceUpdate();
-    timeClientRetryCount++;
-    logInfo(".");
-  }
-  if  (timeClientRetryCount < maxTimeClientRetryCount) {
-   logInfo("NTP time=" + timeClient.getFormattedTime());
-   c.dateTime = timeClient.getEpochTime();
-  } else {
-    logInfo("estimating time");
-    c.dateTime=c.dateTime+c.interval;
-    endTime = millis();
-    duration = endTime - startTime;
-    //add loop time
-    c.dateTime=c.dateTime+  round(duration/1000);
-    logInfo("estimated dateTime="+ String(c.dateTime));
-
-  }
-  
-  **/
-  
   timeClient.update();
-   c.dateTime = timeClient.getEpochTime();
-   logInfo("NTP time=" + timeClient.getFormattedTime());
+  if (timeClient.isTimeSet() ) {
+    c.dateTime = timeClient.getEpochTime();
+    logInfo("NTP time=" + timeClient.getFormattedTime());
+  }else {
+    logInfo("estimating time..");
+     c.dateTime=c.dateTime+c.interval;
+    endTime = millis();
+     duration = endTime - startTime;
+     //add loop time
+     c.dateTime=c.dateTime+  round(duration/1000);
+     logInfo("..estimated dateTime="+ String(c.dateTime));
+
+  }
+
+  
 }
