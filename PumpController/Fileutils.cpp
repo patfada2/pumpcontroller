@@ -105,9 +105,16 @@ void listAllFilesInDir(String dir_path) {
 
 
 double percentFull() {
-  FSInfo info;
+    FSInfo info;
     LittleFS.info(info);
-    return 100*(info.usedBytes/info.totalBytes );
+    logInfo("FS used:  " + formatNumberWithCommas(info.usedBytes)+ " bytes");
+    logInfo("FS total: " + formatNumberWithCommas(info.totalBytes)+ " bytes");
+    double x = info.usedBytes;
+    double y = info.totalBytes;
+    double fraction = x/y;
+    logInfo(String(x) + "/" + String(y) + "=" + String(fraction));
+    double percent = 100*fraction;
+    return percent;
 }
 
 
