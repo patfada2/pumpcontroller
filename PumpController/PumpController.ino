@@ -97,7 +97,7 @@ double readA0Avg(int count) {
     delay(10);
   }
   double avg = sample / count;
-  Serial.printf("avg=%f", avg);
+  logInfo("avg=" +String(avg));
   return avg;
 }
 
@@ -285,6 +285,7 @@ void setupWebServer() {
   });
 
   server.on("/GET_VOLTAGE", [](AsyncWebServerRequest* request) {
+    //vin = A0toV(readA0Avg(c.numSamples));
     String data = "{\"x\":" + epochToStringms(c.dateTime) + ",\"y\":" + String(vin) + "}";
     request->send(200, "text/plain", data.c_str());
     logInfo("get voltage returned " + data);
@@ -355,9 +356,6 @@ void displayStatus() {
 
 void setup() {
   Serial.begin(115200);
-
-
-
   wifiOK = setupWiFi();
   timeClient.begin();
 
