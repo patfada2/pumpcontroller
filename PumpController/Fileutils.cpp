@@ -58,7 +58,6 @@ String readDataFile(String path) {
   } else return "[]";
 }
 
-
 void appendFile(fs::FS& fs, const char* path, const char* message) {
   logInfo("Appending to file: " + String(path));
 
@@ -102,6 +101,16 @@ void listAllFilesInDir(String dir_path) {
   logInfo("==================== FS Stats ================");
   
 }
+
+
+
+double percentFull() {
+  FSInfo info;
+    LittleFS.info(info);
+    return 100*(info.usedBytes/info.totalBytes );
+}
+
+
 
 void readFile(fs::FS& fs, const char* path) {
   Serial.printf("Reading file: %s\r\n", path);

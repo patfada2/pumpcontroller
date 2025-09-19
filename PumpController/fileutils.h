@@ -18,5 +18,6 @@ String readDataFile(String path);
 void appendFile(fs::FS& fs, const char* path, const char* message);
 void listAllFilesInDir(String dir_path);
 void readFile(fs::FS& fs, const char* path);
+double percentFull();
 
 #endif

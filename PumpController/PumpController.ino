@@ -417,9 +417,14 @@ void loop() {
   // doesnt log properly on webserial
   //listAllFilesInDir("/");  
 
-  timeClient.update();
+  long pf = percentFull() ;
+  logInfo("FS is " + String(pf) + " %full");
+  if (pf > 80) {
+    logInfo("deleting history to free up disk");
+    clearRelayStateHistory ();
+    clearVoltageHistory();
+  }
 
-  //Serial.println("!!!!" + timeClient.getFormattedTime());
 
   delay(1000);
 
