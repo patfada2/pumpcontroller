@@ -285,6 +285,7 @@ void setupWebServer() {
   });
 
   server.on("/GET_VOLTAGE", [](AsyncWebServerRequest* request) {
+    // screws things up, most web request fail  - thread safety issue with readA0Avg?
     //vin = A0toV(readA0Avg(c.numSamples));
     String data = "{\"x\":" + epochToStringms(c.dateTime) + ",\"y\":" + String(vin) + "}";
     request->send(200, "text/plain", data.c_str());
@@ -412,6 +413,9 @@ void loop() {
   ElegantOTA.loop();
 
   logInfo("loop start v:" + version);
+
+  // doesnt log properly on webserial
+  //listAllFilesInDir("/");  
 
   timeClient.update();
 

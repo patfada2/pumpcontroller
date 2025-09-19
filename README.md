@@ -41,8 +41,10 @@ time comes from an NTP server- requires connection to internet
 
 enable lcd from config
 
-switch to main NTPClient lib
-- could not get to work. The fork of NtpClient in the lib dir works, needs to be imported into sketch as zip
+json structure for file info response
+
+clear history when disk > 80%
+
 
 
 create  a static route from rosiewifi to comcast
