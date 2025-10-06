@@ -14,8 +14,8 @@
 #include <ElegantOTA.h>
 #include <AsyncJson.h>
 
-
-
+//webserial high perfromance mode
+//#define WSL_HIGH_PERF
 
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP);
@@ -97,7 +97,7 @@ double readA0Avg(int count) {
     delay(10);
   }
   double avg = sample / count;
-  logInfo("avg=" +String(avg));
+  Serial.print("avg=" + String(avg));
   return avg;
 }
 
@@ -300,13 +300,13 @@ void setupWebServer() {
     request->send(200, "text/plain", getTimeElapsed());
   });
 
-   server.on("/LIST_FILES", HTTP_GET, [](AsyncWebServerRequest* request) {
-    request->send(200, "text/plain",  "");
+  server.on("/LIST_FILES", HTTP_GET, [](AsyncWebServerRequest* request) {
+    request->send(200, "text/plain", "");
     listAllFilesInDir("/");
   });
 
   server.on("/RESET", HTTP_GET, [](AsyncWebServerRequest* request) {
-    request->send(200, "text/plain",  "");
+    request->send(200, "text/plain", "");
     //LittleFS.format();
     ESP.reset();
   });
@@ -318,7 +318,7 @@ void setupWebServer() {
       JsonObject obj = json.as<JsonObject>();
       c.update(obj);
       c.save();
-      logInfo("dateTime is"+  String(c.dateTime));
+      logInfo("dateTime is" + String(c.dateTime));
 
       request->send(200, "application/json", "{\"status\":\"success\"}");
     } else {
@@ -362,7 +362,7 @@ void setup() {
 
   setupLittleFS();
 
-   // Serial port for debugging purposes
+  // Serial port for debugging purposes
   Serial.begin(115200);
   delay(1000);
 
@@ -384,7 +384,7 @@ void setup() {
     lcdDisplayStatus("wifi connection failed", "");
   }
 
-   
+
   setupWebServer();
 
   logInfo("hello from PumpController");
@@ -393,11 +393,10 @@ void setup() {
   logInfo("loading config");
   c.load();
   logInfo(c.toJson().c_str());
-
 }
 
 int timeClientRetryCount = 0;
-int maxTimeClientRetryCount=10;
+int maxTimeClientRetryCount = 10;
 boolean ACisOn;
 unsigned long startTime;
 unsigned long endTime;
@@ -405,23 +404,23 @@ unsigned long duration;
 
 void loop() {
 
-  if ( WiFi.status() != WL_CONNECTED){
-     setupWiFi();
+  //if ( WiFi.status() != WL_CONNECTED){
+  if (!WiFi.isConnected()) {
+    setupWiFi();
   }
 
   startTime = millis();
-  ElegantOTA.loop();
-
+  
   logInfo("loop start v:" + version);
 
   // doesnt log properly on webserial
-  //listAllFilesInDir("/");  
+  //listAllFilesInDir("/");
 
-  long pf = percentFull() ;
-  logInfo("FS is " + String(pf) + " %full");
+  long pf = percentFull();
+  logInfo("FS is " + String(pf) + "% full");
   if (pf > 80) {
     logInfo("deleting history to free up disk");
-    clearRelayStateHistory ();
+    clearRelayStateHistory();
     clearVoltageHistory();
   }
 
@@ -455,8 +454,12 @@ void loop() {
     displayStatus();
 
     if (relay2IsOn) {
+      logInfo("pump is on");
       secondsOn += c.interval;
+    } else {
+      logInfo("pump is off");
     }
+
 
     if ((secondsOn < c.maxSecondsOnPerDay) and !relay2IsOn and (vin > c.vOn) and ACisOn) {
       logInfo("turning pump on");
@@ -483,19 +486,18 @@ void loop() {
 
   displayStatus();
   timeClient.update();
-  if (timeClient.isTimeSet() ) {
+  if (timeClient.isTimeSet()) {
     c.dateTime = timeClient.getEpochTime();
     logInfo("NTP time=" + timeClient.getFormattedTime());
-  }else {
+  } else {
     logInfo("estimating time..");
-     c.dateTime=c.dateTime+c.interval;
+    c.dateTime = c.dateTime + c.interval;
     endTime = millis();
-     duration = endTime - startTime;
-     //add loop time
-     c.dateTime=c.dateTime+  round(duration/1000);
-     logInfo("..estimated dateTime="+ String(c.dateTime));
-
+    duration = endTime - startTime;
+    //add loop time
+    c.dateTime = c.dateTime + round(duration / 1000);
+    logInfo("..estimated dateTime=" + String(c.dateTime));
   }
+  ElegantOTA.loop();
 
-  
 }
