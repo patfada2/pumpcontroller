@@ -3,7 +3,6 @@ To load index.html to esp, from Arduino Ide
 1. disconneserct ial monitor
 2. shift ctrl p, select "upload little fs to pico/ESP8286/ESP32
 
-To do
 
 ## logs
 http://192.168.1.99/webserial
@@ -34,8 +33,15 @@ time comes from an NTP server- requires connection to internet
  nz.pool.ntp.org
    w32tm /stripchart /computer:nz.pool.ntp.org /dataonly /samples:5
 
+## changes
 
+version 1.13.3
+ - limited number of lines returned in voltage history to latest 100
+ - logging free memory
+ 
 ## to do
+
+webserial logging not working properly, missing lines
 
 get voltage returnign 0 after page refresh, clear hsitory...
 can we use a lcoal index.html
@@ -46,7 +52,7 @@ enable lcd from config
 
 json structure for file info response
 
-clear history when disk > 80%
+
 
 
 

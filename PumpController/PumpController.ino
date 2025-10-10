@@ -412,6 +412,7 @@ void loop() {
   startTime = millis();
   
   logInfo("loop start v:" + version);
+  logInfo("free memory :" + ESP.getFreeHeap());
 
   // doesnt log properly on webserial
   //listAllFilesInDir("/");
