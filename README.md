@@ -37,6 +37,9 @@ time comes from an NTP server- requires connection to internet
 
 ## to do
 
+get voltage returnign 0 after page refresh, clear hsitory...
+can we use a lcoal index.html
+change geHistory to just return last n points or paginate
 
 
 enable lcd from config

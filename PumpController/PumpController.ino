@@ -27,7 +27,7 @@ String timeStamp;
 
 
 const int secondsInDay = 3600 * 24;
-const String version = "1.13.2";
+const String version = "1.13.3";
 
 //config
 Config c;
@@ -48,9 +48,8 @@ const int relay2Pin = D5;  //controls the AC relay
 const int AC_DETECT = D7;  //need to assign a digital inpu to this
 const int AC_LED = D3;
 const int relay2_LED = D8;
-// Replace with your network credentials
-
 const int analogInPin = A0;  // ESP8266 Analog Pin ADC0 = A0
+const int MAX_HISTORY=100;
 String vinDataFile = "/voltageHistory.txt";
 String relay2DataFile = "/stateHistory.txt";
 
@@ -177,7 +176,8 @@ String booleanToOnOff(boolean flag) {
 }
 
 String readVoltageData() {
-  return readDataFile(vinDataFile);
+  //return readDataFile(vinDataFile);
+  return readLastNLFS(vinDataFile, MAX_HISTORY);
 }
 
 String readStatusData() {

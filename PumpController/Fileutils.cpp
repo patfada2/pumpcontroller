@@ -1,6 +1,7 @@
 
 #include "fileutils.h"
 #include "common.h"
+#include <vector>
 
 void writeFile(fs::FS& fs, const char* path, const char* message) {
   Serial.printf("Writing file: %s\r\n", path);
@@ -38,24 +39,61 @@ String readDataFile(String path) {
     line = (file.readStringUntil('\n'));
     Serial.println(line);
     //dont want the last line which is just a comma
-    if (file.available() ) {
+    if (file.available()) {
       s += line;
       numLines += 1;
     }
   }
   file.close();
   logInfo("last line = " + line);
-  
+
   //replace trailing comma with  ']'
   s[s.length() - 2] = ' ';
-   s[s.length() - 1] = ']';
-//logInfo("!!!!!!!!!!!!!!!!!!!!!!!!!!" +s);
+  s[s.length() - 1] = ']';
+  //logInfo("!!!!!!!!!!!!!!!!!!!!!!!!!!" +s);
 
   logInfo("read " + String(numLines) + " lines");
   //Serial.println(s);
   if (numLines > 0) {
     return s;
   } else return "[]";
+}
+
+
+// Function to read the last n lines from a LittleFS file
+  String readLastNLFS(String path, int n) {
+  std::vector<std::string> lastLines;
+
+  File file = LittleFS.open(path, FILE_READ);
+
+  if (!file) {
+    Serial.println("Failed to open file for reading");
+    return "[]";
+  }
+
+  while (file.available()) {
+    String line = file.readStringUntil('\n');
+    if (lastLines.size() >= n) {
+      lastLines.erase(lastLines.begin());  // Remove oldest line
+    }
+    lastLines.push_back(line.c_str());  // Add new line
+  }
+
+  file.close();
+
+  // wrap in brackets and return as string
+  String s = "";
+  int numLines = 0;
+  String line = "";
+  s = "[";
+
+  for (int i = 0; i < (lastLines.size()); i++) {
+    s += lastLines[i].c_str();
+  }
+  //replace trailing comma with  ']'
+  s[s.length() - 2] = ' ';
+  s[s.length() - 1] = ']';
+  return s;
 }
 
 void appendFile(fs::FS& fs, const char* path, const char* message) {
@@ -88,33 +126,32 @@ void listAllFilesInDir(String dir_path) {
       logInfo("File: ");
       logInfo(dir_path + dir.fileName() + " size: " + String(dir.fileSize()));
     } else if (dir.isDirectory()) {
-      // If it's a directory, print its name 
+      // If it's a directory, print its name
       logInfo("Dir: ");
       logInfo(dir_path + dir.fileName() + "/");
     }
   }
-    logInfo("==================== FS Stats ================");
-    FSInfo info;
-    LittleFS.info(info);
-    logInfo("FS used:  " + formatNumberWithCommas(info.usedBytes)+ " bytes");
-    logInfo("FS total: " + formatNumberWithCommas(info.totalBytes)+ " bytes");
   logInfo("==================== FS Stats ================");
-  
+  FSInfo info;
+  LittleFS.info(info);
+  logInfo("FS used:  " + formatNumberWithCommas(info.usedBytes) + " bytes");
+  logInfo("FS total: " + formatNumberWithCommas(info.totalBytes) + " bytes");
+  logInfo("==================== FS Stats ================");
 }
 
 
 
 double percentFull() {
-    FSInfo info;
-    LittleFS.info(info);
-    logInfo("FS used:  " + formatNumberWithCommas(info.usedBytes)+ " bytes");
-    logInfo("FS total: " + formatNumberWithCommas(info.totalBytes)+ " bytes");
-    double x = info.usedBytes;
-    double y = info.totalBytes;
-    double fraction = x/y;
-    logInfo(String(x) + "/" + String(y) + "=" + String(fraction));
-    double percent = 100*fraction;
-    return percent;
+  FSInfo info;
+  LittleFS.info(info);
+  logInfo("FS used:  " + formatNumberWithCommas(info.usedBytes) + " bytes");
+  logInfo("FS total: " + formatNumberWithCommas(info.totalBytes) + " bytes");
+  double x = info.usedBytes;
+  double y = info.totalBytes;
+  double fraction = x / y;
+  logInfo(String(x) + "/" + String(y) + "=" + String(fraction));
+  double percent = 100 * fraction;
+  return percent;
 }
 
 
