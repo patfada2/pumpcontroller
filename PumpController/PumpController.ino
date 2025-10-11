@@ -50,6 +50,7 @@ const int AC_LED = D3;
 const int relay2_LED = D8;
 const int analogInPin = A0;  // ESP8266 Analog Pin ADC0 = A0
 const int MAX_HISTORY=100;
+
 String vinDataFile = "/voltageHistory.txt";
 String relay2DataFile = "/stateHistory.txt";
 
@@ -69,7 +70,7 @@ if (AC is off) and (V_dc >12)
 */
 
 double A0toV(double _a0) {
-  Serial.printf("a0=%f, v= %f, v_cal=%f", _a0, _a0 / c.vcal, c.vcal);
+  //Serial.printf("a0=%f, v= %f, v_cal=%f", _a0, _a0 / c.vcal, c.vcal);
   //logInfo();
   return _a0 / c.vcal;
 }
@@ -83,8 +84,8 @@ int readA0() {
     logInfo("Failed to read from A0 sensor!");
     return 0;
   } else {
-    Serial.print("sensor A0 = ");
-    Serial.println(a);
+    logTrace("sensor A0 = ");
+    logTrace(String(a));
     return a;
   }
 }
@@ -96,7 +97,7 @@ double readA0Avg(int count) {
     delay(10);
   }
   double avg = sample / count;
-  Serial.print("avg=" + String(avg));
+  logTrace("avg=" + String(avg));
   return avg;
 }
 
@@ -357,7 +358,9 @@ void displayStatus() {
 
 void setup() {
   Serial.begin(115200);
+
   wifiOK = setupWiFi();
+
   timeClient.begin();
 
   setupLittleFS();
@@ -404,18 +407,17 @@ unsigned long duration;
 
 void loop() {
 
+  
+  delay(c.interval * 1000);
+  startTime = millis();
+
+  logInfo("loop start v:" + version);
+
   //if ( WiFi.status() != WL_CONNECTED){
   if (!WiFi.isConnected()) {
     setupWiFi();
   }
 
-  startTime = millis();
-  
-  logInfo("loop start v:" + version);
-  logInfo("free memory :" + ESP.getFreeHeap());
-
-  // doesnt log properly on webserial
-  //listAllFilesInDir("/");
 
   long pf = percentFull();
   logInfo("FS is " + String(pf) + "% full");
@@ -424,13 +426,6 @@ void loop() {
     clearRelayStateHistory();
     clearVoltageHistory();
   }
-
-
-  delay(1000);
-
-  digitalWrite(LED_BUILTIN, HIGH);
-
-  delay(c.interval * 1000);
 
   vin = A0toV(readA0Avg(c.numSamples));
 
@@ -483,7 +478,7 @@ void loop() {
     }
 
 
-  } else logInfo("manual mode");
+  } else logInfo("manual mode is ON");
 
   displayStatus();
   timeClient.update();
@@ -500,5 +495,5 @@ void loop() {
     logInfo("..estimated dateTime=" + String(c.dateTime));
   }
   ElegantOTA.loop();
-
+  logInfo("loop end - free memory :" + String(ESP.getFreeHeap()));
 }

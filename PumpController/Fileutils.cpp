@@ -4,17 +4,17 @@
 #include <vector>
 
 void writeFile(fs::FS& fs, const char* path, const char* message) {
-  Serial.printf("Writing file: %s\r\n", path);
+  logTrace("Writing file: " + String(path));
 
   File file = fs.open(path, FILE_WRITE);
   if (!file) {
-    Serial.println("- failed to open file for writing");
+    logInfo("- failed to open file for writing");
     return;
   }
   if (file.print(message)) {
-    Serial.println("- file written");
+    logTrace("- file written");
   } else {
-    Serial.println("- write failed");
+    logInfo("- write failed");
   }
   file.close();
 }
@@ -26,18 +26,18 @@ String readDataFile(String path) {
   int numLines = 0;
   String line = "";
   s = "[";
-  Serial.printf("Reading file: %s\r\n", path);
+  logInfo("Reading file: " +  path);
 
   File file = LittleFS.open(path, FILE_READ);
   if (!file || file.isDirectory()) {
-    Serial.println("- failed to open file for reading");
+    logInfo("- failed to open file for reading");
     return "";
   }
 
   Serial.println("- read from file:");
   while (file.available()) {
     line = (file.readStringUntil('\n'));
-    Serial.println(line);
+    logTrace(line);
     //dont want the last line which is just a comma
     if (file.available()) {
       s += line;
@@ -67,7 +67,7 @@ String readDataFile(String path) {
   File file = LittleFS.open(path, FILE_READ);
 
   if (!file) {
-    Serial.println("Failed to open file for reading");
+    logInfo("Failed to open file for reading");
     return "[]";
   }
 
@@ -97,7 +97,7 @@ String readDataFile(String path) {
 }
 
 void appendFile(fs::FS& fs, const char* path, const char* message) {
-  logInfo("Appending to file: " + String(path));
+  logTrace("Appending to file: " + String(path));
 
 
   File file = fs.open(path, FILE_APPEND);
@@ -107,8 +107,7 @@ void appendFile(fs::FS& fs, const char* path, const char* message) {
   }
   //println
   if (file.println(message)) {
-
-    Serial.printf("- message appended: %s\r\n", message);
+    logTrace("- message appended: " + String(message));
   } else {
     logInfo("- append failed");
   }
@@ -144,12 +143,12 @@ void listAllFilesInDir(String dir_path) {
 double percentFull() {
   FSInfo info;
   LittleFS.info(info);
-  logInfo("FS used:  " + formatNumberWithCommas(info.usedBytes) + " bytes");
-  logInfo("FS total: " + formatNumberWithCommas(info.totalBytes) + " bytes");
+  logTrace("FS used:  " + formatNumberWithCommas(info.usedBytes) + " bytes");
+  logTrace("FS total: " + formatNumberWithCommas(info.totalBytes) + " bytes");
   double x = info.usedBytes;
   double y = info.totalBytes;
   double fraction = x / y;
-  logInfo(String(x) + "/" + String(y) + "=" + String(fraction));
+  logTrace(String(x) + "/" + String(y) + "=" + String(fraction));
   double percent = 100 * fraction;
   return percent;
 }
@@ -161,7 +160,7 @@ void readFile(fs::FS& fs, const char* path) {
 
   File file = fs.open(path, FILE_READ);
   if (!file || file.isDirectory()) {
-    Serial.println("- failed to open file for reading");
+    logInfo("- failed to open file for reading");
     return;
   }
 
