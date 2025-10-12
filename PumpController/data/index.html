@@ -34,7 +34,7 @@
 						<li><a class="dropdown-item" href="javascript:clearHistory();">Clear History</a></li>
 						<li><a class="dropdown-item" href="javascript:getConfig();">Load Config</a></li>
 						<li><a class="dropdown-item" href="javascript:listFiles();">List Files</a></li>
-						<li><a class="dropdown-item" href="./webserial">View logs</a></li>
+						<li><a class="dropdown-item" href="./GET_LOGS">View logs</a></li>
 						<li><a class="dropdown-item" href="./update">Update</a></li>
 						<li><a class="dropdown-item" href="javascript:reset();">Reset</a></li>
 						
@@ -501,6 +501,18 @@
 		xhttp.open("GET", "/CLEAR_RELAY_STATE_HISTORY", true);
 		xhttp.send();
 	};
+	
+	
+    function clearLogs() {
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function () {
+			if (this.readyState == 4 && this.status == 200) {				
+				log("cleared logs");				
+			}
+		};
+		xhttp.open("GET", "/CLEAR_LOGS", true);
+		xhttp.send();
+	};
 
 
 
@@ -550,6 +562,7 @@
 	function clearHistory() {
 		clearVoltageHistory();
 		clearRelayStateHistory();
+		clearLogs();
 	}
 
 	function readState() {

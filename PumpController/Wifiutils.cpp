@@ -4,8 +4,8 @@
 #include "common.h"
 
 
-#define ROSIE_WIFI
-//#define COMFAST
+//#define ROSIE_WIFI
+#define COMFAST
 const char* password = "Thr33.0n3";
 #if defined(ROSIE_WIFI)
 const char* ssid = "RosieWiFi";
