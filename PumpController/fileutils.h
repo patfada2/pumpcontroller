@@ -3,7 +3,8 @@
 
 #include <LittleFS.h>
 #include <FS.h>
-
+#include <Arduino.h> 
+#include <String.h>
 
 #define FORMAT_LITTLEFS_IF_FAILED true
 
