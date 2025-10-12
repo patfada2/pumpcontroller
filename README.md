@@ -39,6 +39,9 @@ version 1.13.3
  - limited number of lines returned in voltage history to latest 100
  - logging free memory
  
+version 1.13.4
+- logging to fiel, removed webserial
+ 
 ## to do
 
 webserial logging not working properly, missing lines
