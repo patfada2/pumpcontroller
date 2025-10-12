@@ -55,7 +55,6 @@ const int MAX_HISTORY=100;
 String vinDataFile = "/voltageHistory.txt";
 String relay2DataFile = "/stateHistory.txt";
 
-
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
 
@@ -194,7 +193,12 @@ String clearVoltageHistory() {
   return "voltage history cleared";
 }
 
-
+String clearLogs() {
+  //delete and recreate the file
+  LittleFS.remove(LOG_FILE.c_str());
+  writeFile(LittleFS, LOG_FILE.c_str(), "");
+  return "log file cleared";
+}
 String clearRelayStateHistory() {
   //delete and recreate the file
   LittleFS.remove(relay2DataFile.c_str());
@@ -228,8 +232,6 @@ void setupLittleFS() {
     logInfo("Found file" + relay2DataFile);
   }
 
-  setupLogFile();
-
   listAllFilesInDir("/");
   FSInfo info;
   LittleFS.info(info);
@@ -247,10 +249,13 @@ void setupWebServer() {
     request->send(LittleFS, "/index.html");
   });
 
-  // Route for root / web page
   server.on("/GET_LOGS", HTTP_GET, [](AsyncWebServerRequest* request) {
     logInfo("sending html..");
     request->send(LittleFS, LOG_FILE);
+  });
+  server.on("/CLEAR_LOGS", HTTP_GET, [](AsyncWebServerRequest* request) {
+    logInfo("clearing log file...");
+    request->send(200, "text/plain", clearLogs());
   });
 
   server.on("/plugin/json-ui.jquery.js", HTTP_GET, [](AsyncWebServerRequest* request) {
@@ -341,7 +346,7 @@ void setupWebServer() {
   // Start server
   ElegantOTA.begin(&server);
   //WebSerial.begin(&server);
-  //WebSerial.onMessage(recvMsg);
+ // WebSerial.onMessage(recvMsg);
   server.begin();
 }
 
@@ -374,7 +379,7 @@ void setup() {
   timeClient.begin();
 
   setupLittleFS();
-
+  setupLogFile();
   // Serial port for debugging purposes
   Serial.begin(115200);
   delay(1000);
@@ -403,10 +408,9 @@ void setup() {
   logInfo("hello from PumpController");
 
   c = Config();
-  logInfo("setup is loading config:");
+  logInfo("loading config");
   c.load();
   logInfo(c.toJson().c_str());
-  logInfo("setup finished");
 }
 
 int timeClientRetryCount = 0;
@@ -436,6 +440,7 @@ void loop() {
     logInfo("deleting history to free up disk");
     clearRelayStateHistory();
     clearVoltageHistory();
+    clearLogs();
   }
 
   vin = A0toV(readA0Avg(c.numSamples));

@@ -1,6 +1,5 @@
 #include "common.h"
-
-
+#include "logutils.h"
 
 String formatNumberWithCommas(long number) {
   String result = "";

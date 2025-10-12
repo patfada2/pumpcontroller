@@ -2,21 +2,21 @@
 #include "fileutils.h"
 #include "common.h"
 #include <vector>
-#include "logutils.h"
 #include <string>
 
+
 void writeFile(fs::FS& fs, const char* path, const char* message) {
-  logTrace("Writing file: " + String(path));
+  Serial.println("Writing file: " + String(path));
 
   File file = fs.open(path, FILE_WRITE);
   if (!file) {
-    logInfo("- failed to open file for writing");
+     Serial.println("- failed to open file for writing");
     return;
   }
   if (file.print(message)) {
-    logTrace("- file written");
+     Serial.println("- file written");
   } else {
-    logInfo("- write failed");
+     Serial.println("- write failed");
   }
   file.close();
 }
@@ -28,18 +28,18 @@ String readDataFile(String path) {
   int numLines = 0;
   String line = "";
   s = "[";
-  logInfo("Reading file: " +  path);
+   Serial.println("Reading file: " +  path);
 
   File file = LittleFS.open(path, FILE_READ);
   if (!file || file.isDirectory()) {
-    logInfo("- failed to open file for reading");
+     Serial.println("- failed to open file for reading");
     return "";
   }
 
   Serial.println("- read from file:");
   while (file.available()) {
     line = (file.readStringUntil('\n'));
-    logTrace(line);
+     Serial.println(line);
     //dont want the last line which is just a comma
     if (file.available()) {
       s += line;
@@ -47,14 +47,14 @@ String readDataFile(String path) {
     }
   }
   file.close();
-  logInfo("last line = " + line);
+   Serial.println("last line = " + line);
 
   //replace trailing comma with  ']'
   s[s.length() - 2] = ' ';
   s[s.length() - 1] = ']';
-  //logInfo("!!!!!!!!!!!!!!!!!!!!!!!!!!" +s);
+  // Serial.println("!!!!!!!!!!!!!!!!!!!!!!!!!!" +s);
 
-  logInfo("read " + String(numLines) + " lines");
+   Serial.println("read " + String(numLines) + " lines");
   //Serial.println(s);
   if (numLines > 0) {
     return s;
@@ -69,16 +69,17 @@ String readDataFile(String path) {
   File file = LittleFS.open(path, FILE_READ);
 
   if (!file) {
-    logInfo("Failed to open file for reading");
+     Serial.println("Failed to open file for reading");
     return "[]";
   }
 
   while (file.available()) {
+    //String line = file.readStringUntil('\n');
     std::string line = file.readStringUntil('\n').c_str();
     if (lastLines.size() >= n) {
       lastLines.erase(lastLines.begin());  // Remove oldest line
     }
-    lastLines.push_back(line);  // Add new line
+    lastLines.push_back(line.c_str());  // Add new line
   }
 
   file.close();
@@ -99,19 +100,19 @@ String readDataFile(String path) {
 }
 
 void appendFile(fs::FS& fs, const char* path, const char* message) {
-  logTrace("Appending to file: " + String(path));
+   Serial.println("Appending to file: " + String(path));
 
 
   File file = fs.open(path, FILE_APPEND);
   if (!file) {
-    logInfo("- failed to open file for appending");
+     Serial.println("- failed to open file for appending");
     return;
   }
   //println
   if (file.println(message)) {
-    logTrace("- message appended: " + String(message));
+     Serial.println("- message appended: " + String(message));
   } else {
-    logInfo("- append failed");
+     Serial.println("- append failed");
   }
   file.close();
 }
@@ -119,25 +120,25 @@ void appendFile(fs::FS& fs, const char* path, const char* message) {
 void listAllFilesInDir(String dir_path) {
   // Open the specified directory
   Dir dir = LittleFS.openDir(dir_path);
-  logInfo("==================== listing dir " + dir_path + "=====================");
+   Serial.println("==================== listing dir " + dir_path + "=====================");
   // Iterate through the directory contents
   while (dir.next()) {
     if (dir.isFile()) {
       // If it's a file, print its name and size
-      logInfo("File: ");
-      logInfo(dir_path + dir.fileName() + " size: " + String(dir.fileSize()));
+       Serial.println("File: ");
+       Serial.println(dir_path + dir.fileName() + " size: " + String(dir.fileSize()));
     } else if (dir.isDirectory()) {
       // If it's a directory, print its name
-      logInfo("Dir: ");
-      logInfo(dir_path + dir.fileName() + "/");
+       Serial.println("Dir: ");
+       Serial.println(dir_path + dir.fileName() + "/");
     }
   }
-  logInfo("==================== FS Stats ================");
+   Serial.println("==================== FS Stats ================");
   FSInfo info;
   LittleFS.info(info);
-  logInfo("FS used:  " + formatNumberWithCommas(info.usedBytes) + " bytes");
-  logInfo("FS total: " + formatNumberWithCommas(info.totalBytes) + " bytes");
-  logInfo("==================== FS Stats ================");
+   Serial.println("FS used:  " + formatNumberWithCommas(info.usedBytes) + " bytes");
+   Serial.println("FS total: " + formatNumberWithCommas(info.totalBytes) + " bytes");
+   Serial.println("==================== FS Stats ================");
 }
 
 
@@ -145,12 +146,12 @@ void listAllFilesInDir(String dir_path) {
 double percentFull() {
   FSInfo info;
   LittleFS.info(info);
-  logTrace("FS used:  " + formatNumberWithCommas(info.usedBytes) + " bytes");
-  logTrace("FS total: " + formatNumberWithCommas(info.totalBytes) + " bytes");
+   Serial.println("FS used:  " + formatNumberWithCommas(info.usedBytes) + " bytes");
+   Serial.println("FS total: " + formatNumberWithCommas(info.totalBytes) + " bytes");
   double x = info.usedBytes;
   double y = info.totalBytes;
   double fraction = x / y;
-  logTrace(String(x) + "/" + String(y) + "=" + String(fraction));
+   Serial.println(String(x) + "/" + String(y) + "=" + String(fraction));
   double percent = 100 * fraction;
   return percent;
 }
@@ -162,7 +163,7 @@ void readFile(fs::FS& fs, const char* path) {
 
   File file = fs.open(path, FILE_READ);
   if (!file || file.isDirectory()) {
-    logInfo("- failed to open file for reading");
+     Serial.println("- failed to open file for reading");
     return;
   }
 

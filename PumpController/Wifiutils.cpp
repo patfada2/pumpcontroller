@@ -2,10 +2,10 @@
 #include <ArduinoJson.h>
 #include "wifiutils.h"
 #include "common.h"
-#include "logutils.h"
 
-//#define ROSIE_WIFI
-#define COMFAST
+
+#define ROSIE_WIFI
+//#define COMFAST
 const char* password = "Thr33.0n3";
 #if defined(ROSIE_WIFI)
 const char* ssid = "RosieWiFi";
@@ -42,14 +42,14 @@ boolean setupWiFi() {
   while ((WiFi.status() != WL_CONNECTED) && retry < 10) {
     delay(1000);
     retry++;
-    logInfo("Connecting to WiFi..");
+    Serial.println("Connecting to WiFi..");
   }
   if (WiFi.status() == WL_CONNECTED) {
     result = true;
     Serial.println(WiFi.localIP());
   } else {
     result = false;
-    logInfo("failed to connect to wifi ");
+    Serial.println("failed to connect to wifi ");
   }
   // Print ESP32 Local IP Address
 
