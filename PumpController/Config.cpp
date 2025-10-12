@@ -3,6 +3,8 @@
 #ifndef fileutils_h
 #include "./fileutils.h"
 #include "common.h"
+#include "logutils.h"
+
 #endif
 Config::Config() {
 

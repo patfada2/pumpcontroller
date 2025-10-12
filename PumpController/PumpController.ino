@@ -13,6 +13,7 @@
 #include "./wifiutils.h"
 #include <ElegantOTA.h>
 #include <AsyncJson.h>
+#include "logutils.h"
 
 //webserial high perfromance mode
 //#define WSL_HIGH_PERF
@@ -54,12 +55,13 @@ const int MAX_HISTORY=100;
 String vinDataFile = "/voltageHistory.txt";
 String relay2DataFile = "/stateHistory.txt";
 
+
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
 
 
 void recvMsg(uint8_t* data, size_t len) {
-  WebSerial.println("Received Data...");
+  logInfo("Received Data...");
 }
 
 
@@ -226,6 +228,8 @@ void setupLittleFS() {
     logInfo("Found file" + relay2DataFile);
   }
 
+  setupLogFile();
+
   listAllFilesInDir("/");
   FSInfo info;
   LittleFS.info(info);
@@ -241,6 +245,12 @@ void setupWebServer() {
   server.on("/", HTTP_GET, [](AsyncWebServerRequest* request) {
     logInfo("sending html..");
     request->send(LittleFS, "/index.html");
+  });
+
+  // Route for root / web page
+  server.on("/GET_LOGS", HTTP_GET, [](AsyncWebServerRequest* request) {
+    logInfo("sending html..");
+    request->send(LittleFS, LOG_FILE);
   });
 
   server.on("/plugin/json-ui.jquery.js", HTTP_GET, [](AsyncWebServerRequest* request) {
@@ -330,8 +340,8 @@ void setupWebServer() {
 
   // Start server
   ElegantOTA.begin(&server);
-  WebSerial.begin(&server);
-  WebSerial.onMessage(recvMsg);
+  //WebSerial.begin(&server);
+  //WebSerial.onMessage(recvMsg);
   server.begin();
 }
 
@@ -393,9 +403,10 @@ void setup() {
   logInfo("hello from PumpController");
 
   c = Config();
-  logInfo("loading config");
+  logInfo("setup is loading config:");
   c.load();
   logInfo(c.toJson().c_str());
+  logInfo("setup finished");
 }
 
 int timeClientRetryCount = 0;

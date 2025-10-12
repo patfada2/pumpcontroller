@@ -2,6 +2,8 @@
 #include "fileutils.h"
 #include "common.h"
 #include <vector>
+#include "logutils.h"
+#include <string>
 
 void writeFile(fs::FS& fs, const char* path, const char* message) {
   logTrace("Writing file: " + String(path));
@@ -72,11 +74,11 @@ String readDataFile(String path) {
   }
 
   while (file.available()) {
-    String line = file.readStringUntil('\n');
+    std::string line = file.readStringUntil('\n').c_str();
     if (lastLines.size() >= n) {
       lastLines.erase(lastLines.begin());  // Remove oldest line
     }
-    lastLines.push_back(line.c_str());  // Add new line
+    lastLines.push_back(line);  // Add new line
   }
 
   file.close();

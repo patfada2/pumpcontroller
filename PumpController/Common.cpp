@@ -1,16 +1,6 @@
 #include "common.h"
-boolean LOG_TRACE=false;
-void logInfo(String msg) {
-  Serial.println(msg);
-  WebSerial.println(msg);
-}
 
-void logTrace(String msg) {
-  if (LOG_TRACE) {
-    Serial.println(msg);
-    WebSerial.println(msg);
-  }
-}
+
 
 String formatNumberWithCommas(long number) {
   String result = "";

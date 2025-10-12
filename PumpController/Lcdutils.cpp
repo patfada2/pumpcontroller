@@ -3,6 +3,7 @@
 #include "lcdutils.h"
 #include <LiquidCrystal_I2C.h>
 #include "common.h"
+#include "logutils.h"
 
 
 // set the LCD number of columns and rows
