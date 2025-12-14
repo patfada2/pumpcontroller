@@ -1,6 +1,6 @@
 # Pump Controller
 To load index.html to esp, from Arduino Ide
-1. disconneserct ial monitor
+1. disconnesct serial monitor
 2. shift ctrl p, select "upload little fs to pico/ESP8286/ESP32
 
 
@@ -40,9 +40,13 @@ version 1.13.3
  - logging free memory
  
 version 1.13.4
-- logging to fiel, removed webserial
+- logging to file, removed webserial
+
+version 1.13.5
+- add a  pause after pump off because of low volt
  
 ## to do
+age
 
 webserial logging not working properly, missing lines
 

@@ -28,7 +28,8 @@ String timeStamp;
 
 
 const int secondsInDay = 3600 * 24;
-const String version = "1.13.4";
+const String version = "1.13.5";
+const int pauseInterval = 900; // seconds to pause for after low volts (to allow recharge)
 
 //config
 Config c;
@@ -419,6 +420,7 @@ boolean ACisOn;
 unsigned long startTime;
 unsigned long endTime;
 unsigned long duration;
+int pauseCountdown = 0;
 
 void loop() {
 
@@ -427,6 +429,12 @@ void loop() {
   startTime = millis();
 
   logInfo("loop start v:" + version);
+
+
+  if (pauseCountdown > 0) {
+    pauseCountdown = pauseCountdown  - c.interval;
+    logInfo("pausing -  " + String(pauseCountdown) + "seconds to go");
+  }
 
   //if ( WiFi.status() != WL_CONNECTED){
   if (!WiFi.isConnected()) {
@@ -461,7 +469,7 @@ void loop() {
   }
   ACisOn = getACStatus();
 
-  if (!c.isManual) {
+  if ((!c.isManual) && (pauseCountdown <= 0 )) {
     logInfo("checking pump status");
     displayStatus();
 
@@ -481,6 +489,8 @@ void loop() {
     if (relay2IsOn and (vin < c.vOff)) {
       logInfo("turning pump off because voltage is too low");
       relay2Off();
+      //pause  to let batteries recharge
+      pauseCountdown = pauseInterval;
     }
 
     if (relay2IsOn and (secondsOn > c.maxSecondsOnPerDay)) {
