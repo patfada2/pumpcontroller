@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "Static server (python)": {
+      "commandName": "Executable",
+      "executablePath": "python",
+      "commandLineArgs": "-m http.server 8000",
+      "workingDirectory": ".",
+      "launchBrowser": true,
+      "launchUrl": "http://localhost:8000/data/index.html"
+    }
+  }
+}

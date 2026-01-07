@@ -28,7 +28,7 @@ String timeStamp;
 
 
 const int secondsInDay = 3600 * 24;
-const String version = "1.13.5";
+const String version = "1.13.6";
 const int pauseInterval = 900; // seconds to pause for after low volts (to allow recharge)
 
 //config
@@ -504,7 +504,7 @@ void loop() {
     }
 
 
-  } else logInfo("manual mode is ON");
+  } else logInfo("in manual mode or pause");
 
   displayStatus();
   timeClient.update();
